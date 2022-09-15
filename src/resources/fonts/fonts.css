@@ -1,0 +1,9 @@
+@font-face {
+  font-family: "Alpharush";
+  src: local(".ttf"), url("./Alpharush.ttf") format("truetype");
+}
+
+html,
+body {
+  font-family: Alpharush, sans-serif;
+}

@@ -32,3 +32,45 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+
+#
+
+## Theme
+
+Color
+
+- Black
+- Light neon blue
+- neon orange
+- neon red
+
+Make it in the stye of a video game
+Block caps
+
+#0C141F
+
+#FFFFFF
+#1F51FF
+#E221CF
+#FF3492
+#FF7F5F
+#FFC14C
+#F9F871
+
+## Screens
+
+### Landing Page
+
+Background is black with maybe an 8 bit plane going past with clouds going by. Plane is neon blue and clouds are white
+
+"Where is Tim?" title video game style with the a description "Press any key to start" flashing with a coin there
+Backgorund
+1 credit
+
+Image of me with parallax scrolling that’ll bring some text over
+
+Big map of where I’ve been and where I am now
+
+Would like to animate the lines being drawn onto the map, hitting each point and making a pinball machine sound
+
+Scroll down again and it’s a timeline of events with images coming in from the side and text showing
