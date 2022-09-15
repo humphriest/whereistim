@@ -10,8 +10,23 @@ import {
   StartDescriptionText,
   TitleText,
 } from "./index.styles";
+import { useEffect } from "react";
+import { useRouter } from "next/router";
 
 const Home: NextPage = () => {
+  const router = useRouter();
+  useEffect(() => {
+    window.addEventListener("keypress", onKeyListener);
+
+    return () => {
+      window.removeEventListener("keypress", onKeyListener);
+    };
+  }, [undefined]);
+
+  const onKeyListener = (e: KeyboardEvent) => {
+    e.preventDefault();
+    router.push("/home");
+  };
   return (
     <MainContainer>
       <TitleText>WHERE IS TIM?</TitleText>

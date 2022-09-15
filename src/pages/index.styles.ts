@@ -14,6 +14,7 @@ export const TitleText = styled.div`
   font-size: 15rem;
   font-weight: 600;
   margin-top: -40px;
+  text-align: center;
 `;
 
 export const Footer = styled.footer`
