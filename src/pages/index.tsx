@@ -16,14 +16,16 @@ import { useRouter } from "next/router";
 const Home: NextPage = () => {
   const router = useRouter();
   useEffect(() => {
-    window.addEventListener("keypress", onKeyListener);
+    window.addEventListener("keypress", actionListener);
+    window.addEventListener("mousedown", actionListener);
 
     return () => {
-      window.removeEventListener("keypress", onKeyListener);
+      window.removeEventListener("keypress", actionListener);
+      window.removeEventListener("mousedown", actionListener);
     };
   }, [undefined]);
 
-  const onKeyListener = (e: KeyboardEvent) => {
+  const actionListener = (e: KeyboardEvent | MouseEvent) => {
     e.preventDefault();
     router.push("/home");
   };
@@ -32,7 +34,7 @@ const Home: NextPage = () => {
       <TitleText>WHERE IS TIM?</TitleText>
       <DescriptionContainer>
         <StartDescriptionText>PRESS ANY KEY TO START</StartDescriptionText>
-        <Image src={spinningCoin} alt="" width={100} height={100} />
+        <Image src={spinningCoin} alt="" width={80} height={80} />
       </DescriptionContainer>
       <Footer>
         <a

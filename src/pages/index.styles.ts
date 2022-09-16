@@ -15,11 +15,16 @@ export const TitleText = styled.div`
   font-weight: 600;
   margin-top: -40px;
   text-align: center;
+
+  @media screen and (max-width: 768px) {
+    font-size: 5rem;
+  }
 `;
 
 export const Footer = styled.footer`
   position: fixed;
   bottom: 0;
+  padding-bottom: 60px;
 `;
 
 export const DescriptionContainer = styled.div`
@@ -29,6 +34,10 @@ export const DescriptionContainer = styled.div`
 
   justify-content: center;
   gap: 5rem;
+
+  @media screen and (max-width: 768px) {
+    gap: 2rem;
+  }
 `;
 
 export const StartDescriptionText = styled.div`
@@ -46,5 +55,9 @@ export const StartDescriptionText = styled.div`
     100% {
       transform: scale(100%);
     }
+  }
+
+  @media screen and (max-width: 768px) {
+    font-size: 20px;
   }
 `;
