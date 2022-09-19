@@ -1,51 +1,29 @@
 import { NextPage } from "next";
-import GoogleMapReact from "google-map-react";
+import Map from "components/Map";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { HeaderTitleContainer, MainContainer } from "./home.styles";
 
 const Home: NextPage = () => {
-  const AnyReactComponent = ({ text }: { text: string }) => (
-    <div
-      style={{
-        width: "10px",
-        height: "10px",
-        borderRadius: "10px",
-        backgroundColor: "red",
-      }}
-    />
-  );
+  const [travelData, setTravelData] = useState<ITravelData>();
 
-  const renderMap = () => {
-    const defaultProps = {
-      center: {
-        lat: 51.035632,
-        lng: -114.093067,
-      },
-      zoom: 4,
+  useEffect(() => {
+    const getTravelDataFn = async () => {
+      const travelDataResponse = await axios.get("/api/travelData");
+      setTravelData(travelDataResponse.data);
     };
+    getTravelDataFn();
+  }, []);
 
-    return (
-      // Important! Always set the container height explicitly
-      <div style={{ height: "100%", width: "100%" }}>
-        <GoogleMapReact
-          bootstrapURLKeys={{ key: process.env.GOOGLE_TOKEN }}
-          defaultCenter={defaultProps.center}
-          defaultZoom={defaultProps.zoom}
-        >
-          <AnyReactComponent
-            lat={51.035632}
-            lng={-114.093067}
-            text="My Marker"
-          />
-        </GoogleMapReact>
-      </div>
-    );
-  };
+  const renderMap = () => <Map travelData={travelData} />;
+
   return (
-    <div style={{ width: "100%", height: "100%" }}>
-      <h1 style={{ color: "white", marginLeft: "50px" }}>
+    <MainContainer>
+      <HeaderTitleContainer>
         This is where the magic happens
-      </h1>
+      </HeaderTitleContainer>
       {renderMap()}
-    </div>
+    </MainContainer>
   );
 };
 export default Home;

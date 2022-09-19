@@ -35,6 +35,13 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/deploym
 
 #
 
+## Ideas
+
+May use redux hooks to handle getting the travel data and setting it in state
+- I can then use the useSelector hook to fetch the data needed for that component
+- This will also remove any boilerplate code needed for adding in redux
+- I can use this for changing the theme too
+
 ## Theme
 
 Color
@@ -67,10 +74,21 @@ Background is black with maybe an 8 bit plane going past with clouds going by. P
 Backgorund
 1 credit
 
-Image of me with parallax scrolling that’ll bring some text over
+### Home page
 
 Big map of where I’ve been and where I am now
 
+Shadow at bottom of map to show the user there's more below the map
+
 Would like to animate the lines being drawn onto the map, hitting each point and making a pinball machine sound
+
+Parallax scrolling is cool would like to include it
+
+Have some stats on my trip. How long I've been, away how many cities, amount of time talking shite,
+Have this with icons and animating numbers
+
+Boxes maybe
+
+As you scroll things will show and appear
 
 Scroll down again and it’s a timeline of events with images coming in from the side and text showing
