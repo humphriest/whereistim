@@ -74,9 +74,12 @@ Background is black with maybe an 8 bit plane going past with clouds going by. P
 Backgorund
 1 credit
 
+When they click a button, play an arcade coin noise, fade everything on the screen out except for the coin. The coin will pop up and go below the screen.
+
 ### Home page
 
-Big map of where I’ve been and where I am now
+Big map of where I’ve been and where I am now. Me pointing to each stop
+Me flying from the previous location to current
 
 Shadow at bottom of map to show the user there's more below the map
 
