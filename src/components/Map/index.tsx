@@ -1,21 +1,45 @@
 import MapMarker from "components/MapMarker";
-import GoogleMapReact from "google-map-react";
-import { useEffect, useState } from "react";
+// import GoogleMapReact from "google-map-react";
+import { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import timPoint from "resources/svgs/timPoint.svg";
 import Image from "next/image";
+import "mapbox-gl/dist/mapbox-gl.css";
+import mapboxgl from "mapbox-gl";
 
 interface IProps {
   travelData?: ITravelData;
 }
+
 const Map = ({ travelData }: IProps) => {
-  const defaultProps = {
-    center: {
-      lat: 40.756795,
-      lng: -73.954298,
-    },
-    zoom: 14,
-  };
+  const mapContainer = useRef<HTMLElement>(null);
+  const map = useRef<mapboxgl.Map | any>(null);
+
+  useEffect(() => {
+    const geojson: [number, number][] = [
+      [-77.032, 38.913],
+      [-122.414, 37.776],
+    ];
+
+    mapboxgl.accessToken = process.env.MAPBOX_GL_TOKEN ?? "";
+    // if (mapContainer.current)
+    map.current = new mapboxgl.Map({
+      container: "map-container",
+      style: "mapbox://styles/mapbox/dark-v10",
+      center: [15.4542, 18.7322], // center map on Chad
+      zoom: 1.8,
+    });
+
+    // add markers to map
+    for (const coords of geojson) {
+      // create a HTML element for each feature
+      const el = document.createElement("div");
+      el.className = "marker";
+
+      // make a marker for each feature and add to the map
+      new mapboxgl.Marker(el).setLngLat(coords).addTo(map.current);
+    }
+  });
 
   const renderNowMapMarker = () => {
     const nowLocation = travelData?.location.now;
@@ -34,83 +58,9 @@ const Map = ({ travelData }: IProps) => {
       return <MapMarker lat={latitude} lng={longitude} text={place} key={i} />;
     });
 
-  // const handleGoogleMapsLoaded = ({
-  //   maps,
-  // }: {
-  //   map: any;
-  //   maps: any;
-  //   ref: Element | null;
-  // }) => {
-  //   var directionsService = new maps.DirectionsService();
-  //   var directionsRenderer = new maps.DirectionsRenderer();
-  //   var chicago = new maps.LatLng(41.850033, -87.6500523);
-  //   var mapOptions = {
-  //     zoom: 7,
-  //     center: chicago,
-  //   };
-  //   var map = new maps.Map(document.getElementById("map"), mapOptions);
-  //   directionsRenderer.setMap(map);
-  //   calcRoute();
-  //   function calcRoute() {
-  //     var start = document.getElementById("start").value;
-  //     var end = document.getElementById("end").value;
-  //     var request = {
-  //       origin: start,
-  //       destination: end,
-  //       travelMode: "DRIVING",
-  //     };
-  //     directionsService.route(request, function (result, status) {
-  //       if (status == "OK") {
-  //         directionsRenderer.setDirections(result);
-  //       }
-  //     });
-  //   }
-  // };
-
-  const handleGoogleMapsLoaded = ({
-    maps,
-    map,
-  }: {
-    map: any;
-    maps: any;
-    ref: Element | null;
-  }) => {
-    const directionsService = new maps.DirectionsService();
-    const directionsRenderer = new maps.DirectionsRenderer();
-    directionsRenderer.setMap(map);
-    const origin = { lat: 40.756795, lng: -73.954298 };
-    const destination = { lat: 41.756795, lng: -78.954298 };
-
-    directionsService.route(
-      {
-        origin: origin,
-        destination: destination,
-        travelMode: maps.TravelMode.DRIVING,
-      },
-      (result, status) => {
-        if (status === maps.DirectionsStatus.OK) {
-          directionsRenderer.setDirections(result);
-        } else {
-          console.error(`error fetching directions ${result}`);
-        }
-      }
-    );
-  };
-
   return (
     <div style={{ height: "100%", width: "100%" }}>
-      {/* {renderNowMapMarker()} */}
-      {/* <GoogleMapReact
-        bootstrapURLKeys={{ key: process.env.GOOGLE_TOKEN }}
-        defaultCenter={defaultProps.center}
-        defaultZoom={defaultProps.zoom}
-        yesIWantToUseGoogleMapApiInternals
-        onGoogleApiLoaded={handleGoogleMapsLoaded}
-      >
-        {renderMyTripMarkers()}
-        {renderNowMapMarker()}
-      </GoogleMapReact> */}
-      <h1>Map here</h1>
+      <div id="map-container" style={{ width: "100%", height: "100%" }} />
     </div>
   );
 };

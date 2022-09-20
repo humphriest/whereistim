@@ -4,6 +4,10 @@ const nextConfig = {
   swcMinify: true,
   env: {
     GOOGLE_TOKEN: process.env.GOOGLE_TOKEN,
+    MAPBOX_GL_TOKEN: process.env.MAPBOX_GL_TOKEN,
+  },
+  compiler: {
+    styledComponents: true,
   },
 };
 
