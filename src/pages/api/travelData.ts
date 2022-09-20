@@ -1,4 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next";
+import { getFormattedPoint } from "utils/formatForMap";
 
 // https://nomadlist.com/@humphries_t.json
 
@@ -12,19 +13,6 @@ export default function handler(
 const travelData: ITravelData = {
   location: {
     now: {
-      city: "Calgary",
-      country: "Canada",
-      country_code: "CA",
-      latitude: 51.0486151,
-      longitude: -114.0708459,
-      epoch_start: 1662336000,
-      epoch_end: 1663372800,
-      date_start: "2022-09-05",
-      date_end: "2022-09-17",
-      place_photo:
-        "https://nomadlist.com/cdn-cgi/image/format=auto,fit=cover,width=100,height=100/https://nomadlist.com/assets/img/places/calgary-canada.jpg?1642723429",
-    },
-    next: {
       city: "Edmonton",
       country: "Canada",
       country_code: "CA",
@@ -37,27 +25,40 @@ const travelData: ITravelData = {
       place_photo:
         "https://nomadlist.com/cdn-cgi/image/format=auto,fit=cover,width=100,height=100/https://nomadlist.com/assets/img/places/edmonton-canada.jpg?1642982507",
     },
-    previous: {
-      city: "Radium Hot Springs",
+    next: {
+      city: "Toronto",
       country: "Canada",
       country_code: "CA",
-      latitude: 50.620073,
-      longitude: -116.076059,
-      epoch_start: 1662249600,
-      epoch_end: 1662336000,
-      date_start: "2022-09-04",
-      date_end: "2022-09-05",
+      latitude: 43.653226,
+      longitude: -79.3831843,
+      epoch_start: 1664496000,
+      epoch_end: 1666915200,
+      date_start: "2022-09-30",
+      date_end: "2022-10-28",
+      place_photo:
+        "https://nomadlist.com/cdn-cgi/image/format=auto,fit=cover,width=100,height=100/https://nomadlist.com/assets/img/places/toronto-canada.jpg?1656633769",
+    },
+    previous: {
+      city: "Calgary",
+      country: "Canada",
+      country_code: "CA",
+      latitude: 51.0486151,
+      longitude: -114.0708459,
+      epoch_start: 1662336000,
+      epoch_end: 1663372800,
+      date_start: "2022-09-05",
+      date_end: "2022-09-17",
     },
   },
   stats: {
-    cities: 12,
+    cities: 13,
     countries: 6,
     followers: 0,
     following: 0,
-    distance_traveled_km: 15303,
-    distance_traveled_miles: 9509,
+    distance_traveled_km: 15583,
+    distance_traveled_miles: 9683,
     countries_visited_percentage: 0.031088082901554404,
-    cities_visited_percentage: 0.008843036109064112,
+    cities_visited_percentage: 0.009579955784819455,
   },
   map: "https://nomadlist.com/screenshot?url=%40humphries_t%3Fmap_only%3Dtrue%26key%3D9bb2813b8e67a2ba1e0271f26a16454a&width=1200&height=600&wait_until_dom=true&cachebuster=2022-09",
   trips: [

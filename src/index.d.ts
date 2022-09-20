@@ -52,3 +52,20 @@ declare interface ITravelStats {
   countries_visited_percentage: number;
   cities_visited_percentage: number;
 }
+
+declare interface IFeature {
+  type: "Feature";
+  geometry: {
+    type: "Point" | "LineString";
+    coordinated: [number, number];
+  };
+}
+declare interface IFeaturePoint {
+  type: "FeatureCollection";
+  features: IFeature[];
+}
+
+declare interface IFeatureRoute {
+  type: "FeatureCollection";
+  features: IFeature[];
+}
