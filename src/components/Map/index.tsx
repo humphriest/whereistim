@@ -27,12 +27,11 @@ const Map = ({ travelData }: IProps) => {
     mapboxgl.accessToken = process.env.MAPBOX_GL_TOKEN || "";
     map.current = new mapboxgl.Map({
       container: "map-container",
-      // Choose from Mapbox's core styles, or make your own style with Mapbox Studio,
       style: "mapbox://styles/mapbox/dark-v10",
       center: [now?.longitude as number, now?.latitude as number],
-      zoom: 7,
-      pitch: 40,
-      projection: "globe",
+      zoom: 6,
+      pitch: 10,
+      projection: { name: "globe" },
     });
 
     map.current.on("style.load", () => {
