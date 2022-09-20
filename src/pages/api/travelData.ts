@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { getFormattedPoint } from "utils/formatForMap";
+import { getFormattedPoint, getFormattedRoute } from "utils/formatForMap";
 
 // https://nomadlist.com/@humphries_t.json
 
@@ -11,12 +11,20 @@ export default function handler(
     getFormattedPoint(trip)
   );
 
+  const tripRoutes = travelData.trips
+    .map((trip, i) => {
+      if (i + 1 === travelData.trips.length) return;
+      return getFormattedRoute(trip, travelData.trips[i + 1]);
+    })
+    .filter(Boolean);
+
   res.status(200).json({
     ...travelData,
     formattedTrips: {
       type: "FeatureCollection",
       features: formattedTripFeatures,
     },
+    tripRoutes: tripRoutes as IFeatureCollectionRoute[],
   });
 }
 

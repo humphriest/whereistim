@@ -11,6 +11,7 @@ declare interface ITravelData {
 
 declare interface ITravelDataResponse extends ITravelData {
   formattedTrips: IFeatureCollectionPoint;
+  tripRoutes: IFeatureCollectionRoute[];
 }
 declare interface ILocationData {
   city: string;
@@ -75,7 +76,7 @@ declare interface IFeatureCollectionRoute {
 declare interface IFeatureRoute {
   type: "Feature";
   geometry: {
-    type: "Point" | "LineString";
-    coordinates: [[number, number], [number, number]];
+    type: "Point" | "LineString" | "Polygon";
+    coordinates: number[][];
   };
 }

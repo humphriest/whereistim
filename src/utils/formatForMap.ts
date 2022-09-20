@@ -11,13 +11,18 @@ export const getFormattedPoint = (
 export const getFormattedRoute = (
   origin: ILocationData | ITrip,
   destination: ILocationData | ITrip
-): IFeatureRoute => ({
-  type: "Feature",
-  geometry: {
-    type: "LineString",
-    coordinates: [
-      [origin.longitude, origin.latitude],
-      [destination.longitude, destination.latitude],
-    ],
-  },
+): IFeatureCollectionRoute => ({
+  type: "FeatureCollection",
+  features: [
+    {
+      type: "Feature",
+      geometry: {
+        type: "LineString",
+        coordinates: [
+          [origin.longitude, origin.latitude],
+          [destination.longitude, destination.latitude],
+        ],
+      },
+    },
+  ],
 });

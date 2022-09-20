@@ -19,11 +19,11 @@ const Map = ({ travelData }: IProps) => {
 
   useEffect(() => {
     if (!travelData) return;
+    const tripRoutes = travelData.tripRoutes;
 
     const now = travelData?.location.now;
     // start from dublin
     const previous = travelData?.trips[0];
-    const formattedTrips = travelData.formattedTrips;
 
     mapboxgl.accessToken = process.env.MAPBOX_GL_TOKEN || "";
     map.current = new mapboxgl.Map({
@@ -39,13 +39,10 @@ const Map = ({ travelData }: IProps) => {
       map.current.setFog({ "horizon-blend": 0.1 }); // Enable stars with reduced atmosphere
     });
 
-    // San Francisco
     const origin = [
       previous?.longitude as number,
       previous?.latitude as number,
     ];
-
-    // Washington DC
     const destination = [now?.longitude as number, now?.latitude as number];
 
     // A simple line from origin to destination.
@@ -78,7 +75,11 @@ const Map = ({ travelData }: IProps) => {
       ],
     };
 
-    // Calculate the distance in kilometers between route start/end point.
+    const polygon = {
+      type: "FeatureCollection",
+    };
+
+    // // Calculate the distance in kilometers between route start/end point.
     const lineDistance = turf.length(route.features[0]);
 
     const arc = [];
@@ -97,26 +98,48 @@ const Map = ({ travelData }: IProps) => {
     // Update the route with calculated arc coordinates
     route.features[0].geometry.coordinates = arc;
 
-    // Used to increment the value of the point measurement against the route.
+    // // Used to increment the value of the point measurement against the route.
     let counter = 0;
 
     map.current.on("load", () => {
-      map.current.addSource("citiesVisited", {
-        type: "geojson",
-        data: formattedTrips,
+      addSourcesToMap();
+
+      tripRoutes.map((tripRoute, i) => {
+        map.current.addSource(`tripRoute${i}`, {
+          type: "geojson",
+          data: tripRoute,
+        });
+
+        // Calculate the distance in kilometers between route start/end point.
+        const lineDistance = turf.length(tripRoute.features[0]);
+
+        const arc = [];
+
+        // Number of steps to use in the arc and animation, more steps means
+        // a smoother arc and animation, but too many steps will result in a
+        // low frame rate
+        const steps = 550;
+
+        // Draw an arc between the `origin` & `destination` of the two points
+        for (let i = 0; i < lineDistance; i += lineDistance / steps) {
+          const segment = turf.along(tripRoute.features[0], i);
+          arc.push(segment.geometry.coordinates);
+        }
+
+        // Update the route with calculated arc coordinates
+        tripRoute.features[0].geometry.coordinates = arc;
+
+        map.current.addLayer({
+          id: `tripRoute${i}`,
+          source: `tripRoute${i}`,
+          type: "line",
+          paint: {
+            "line-width": 2,
+            "line-color": "#00FF00",
+          },
+        });
       });
 
-      map.current.addLayer({
-        id: "citiesVisited",
-        source: "citiesVisited",
-        type: "circle",
-        paint: {
-          "circle-radius": 4,
-          "circle-stroke-width": 2,
-          "circle-color": "red",
-          "circle-stroke-color": "white",
-        },
-      });
       // Add a source and layer displaying a point which will be animated in a circle.
       map.current.addSource("route", {
         type: "geojson",
@@ -128,88 +151,106 @@ const Map = ({ travelData }: IProps) => {
         data: point,
       });
 
-      map.current.addLayer({
-        id: "route",
-        source: "route",
-        type: "line",
-        paint: {
-          "line-width": 2,
-          "line-color": "#007cbf",
-        },
-      });
+      addLayerToMap();
 
-      map.current.addLayer({
-        id: "point",
-        source: "point",
-        type: "symbol",
-        layout: {
-          // This icon is a part of the Mapbox Streets style.
-          // To view all images available in a Mapbox style, open
-          // the style in Mapbox Studio and click the "Images" tab.
-          // To add a new image to the style at runtime see
-          // https://docs.mapbox.com/mapbox-gl-js/example/add-image/
-          "icon-image": "airport-15",
-          "icon-size": 2,
-          "icon-rotate": ["get", "bearing"],
-          "icon-rotation-alignment": "map",
-          "icon-allow-overlap": true,
-          "icon-ignore-placement": true,
-        },
-      });
+      // function animate() {
+      //   const start =
+      //     route.features[0].geometry.coordinates[
+      //       counter >= steps ? counter - 1 : counter
+      //     ];
+      //   const end =
+      //     route.features[0].geometry.coordinates[
+      //       counter >= steps ? counter : counter + 1
+      //     ];
+      //   if (!start || !end) return;
 
-      function animate() {
-        const start =
-          route.features[0].geometry.coordinates[
-            counter >= steps ? counter - 1 : counter
-          ];
-        const end =
-          route.features[0].geometry.coordinates[
-            counter >= steps ? counter : counter + 1
-          ];
-        if (!start || !end) return;
+      //   // Update point geometry to a new position based on counter denoting
+      //   // the index to access the arc
+      //   point.features[0].geometry.coordinates =
+      //     route.features[0].geometry.coordinates[counter];
 
-        // Update point geometry to a new position based on counter denoting
-        // the index to access the arc
-        point.features[0].geometry.coordinates =
-          route.features[0].geometry.coordinates[counter];
+      //   // Calculate the bearing to ensure the icon is rotated to match the route arc
+      //   // The bearing is calculated between the current point and the next point, except
+      //   // at the end of the arc, which uses the previous point and the current point
+      //   point.features[0].properties.bearing = turf.bearing(
+      //     turf.point(start),
+      //     turf.point(end)
+      //   );
 
-        // Calculate the bearing to ensure the icon is rotated to match the route arc
-        // The bearing is calculated between the current point and the next point, except
-        // at the end of the arc, which uses the previous point and the current point
-        point.features[0].properties.bearing = turf.bearing(
-          turf.point(start),
-          turf.point(end)
-        );
-
-        // Update the source with this new data
-        map.current.getSource("point").setData(point);
-
-        // Request the next frame of animation as long as the end has not been reached
-        if (counter < steps) {
-          requestAnimationFrame(animate);
-        }
-
-        counter = counter + 1;
-      }
-
-      // document.getElementById("replay").addEventListener("click", () => {
-      //   // Set the coordinates of the original point back to origin
-      //   point.features[0].geometry.coordinates = origin;
-
-      //   // Update the source layer
+      //   // Update the source with this new data
       //   map.current.getSource("point").setData(point);
 
-      //   // Reset the counter
-      //   counter = 0;
+      //   // Request the next frame of animation as long as the end has not been reached
+      //   if (counter < steps) {
+      //     requestAnimationFrame(animate);
+      //   }
 
-      //   // Restart the animation
-      //   animate(counter);
-      // });
+      //   counter = counter + 1;
+      // }
 
       // Start the animation
       animate(counter);
     });
   }, [travelData]);
+
+  const addSourcesToMap = () => {
+    if (!travelData) return;
+    const formattedTrips = travelData.formattedTrips;
+    const tripRoutes = travelData.tripRoutes;
+
+    map.current.addSource("citiesVisited", {
+      type: "geojson",
+      data: formattedTrips,
+    });
+
+    map.current.addSource("tripRoutes", {
+      type: "geojson",
+      data: tripRoutes[0],
+    });
+  };
+
+  const addLayerToMap = () => {
+    map.current.addLayer({
+      id: "citiesVisited",
+      source: "citiesVisited",
+      type: "circle",
+      paint: {
+        "circle-radius": 4,
+        "circle-stroke-width": 2,
+        "circle-color": "red",
+        "circle-stroke-color": "white",
+      },
+    });
+
+    // map.current.addLayer({
+    //   id: "route",
+    //   source: "route",
+    //   type: "line",
+    //   paint: {
+    //     "line-width": 2,
+    //     "line-color": "#007cbf",
+    //   },
+    // });
+
+    map.current.addLayer({
+      id: "point",
+      source: "point",
+      type: "symbol",
+      layout: {
+        // This icon is a part of the Mapbox Streets style.
+        // To view all images available in a Mapbox style, open
+        // the style in Mapbox Studio and click the "Images" tab.
+        // To add a new image to the style at runtime see
+        // https://docs.mapbox.com/mapbox-gl-js/example/add-image/
+        "icon-image": "airport-15",
+        "icon-size": 2,
+        "icon-rotate": ["get", "bearing"],
+        "icon-rotation-alignment": "map",
+        "icon-allow-overlap": true,
+        "icon-ignore-placement": true,
+      },
+    });
+  };
 
   const renderNowMapMarker = () => {
     const nowLocation = travelData?.location.now;
