@@ -41,6 +41,7 @@ May use redux hooks to handle getting the travel data and setting it in state
 - I can then use the useSelector hook to fetch the data needed for that component
 - This will also remove any boilerplate code needed for adding in redux
 - I can use this for changing the theme too
+- Add a section where they can see stats compared to where they are, kms away, time difference
 
 ## Theme
 
