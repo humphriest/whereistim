@@ -5,9 +5,19 @@ import { getFormattedPoint } from "utils/formatForMap";
 
 export default function handler(
   req: NextApiRequest,
-  res: NextApiResponse<ITravelData>
+  res: NextApiResponse<ITravelDataResponse>
 ) {
-  res.status(200).json(travelData);
+  const formattedTripFeatures: IFeaturePoint[] = travelData.trips.map((trip) =>
+    getFormattedPoint(trip)
+  );
+
+  res.status(200).json({
+    ...travelData,
+    formattedTrips: {
+      type: "FeatureCollection",
+      features: formattedTripFeatures,
+    },
+  });
 }
 
 const travelData: ITravelData = {

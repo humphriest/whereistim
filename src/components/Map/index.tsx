@@ -8,21 +8,22 @@ import * as turf from "@turf/turf";
 import { getFormattedPoint } from "utils/formatForMap";
 
 interface IProps {
-  travelData?: ITravelData;
+  travelData?: ITravelDataResponse;
 }
 
 const Map = ({ travelData }: IProps) => {
-  const mapContainer = useRef<HTMLElement>(null);
   const map = useRef<mapboxgl.Map | any>(null);
 
-  const now = travelData?.location.now;
+  // const now = travelData?.location.now;
   console.log(travelData);
 
   useEffect(() => {
     if (!travelData) return;
 
     const now = travelData?.location.now;
-    const previous = travelData?.location.previous;
+    // start from dublin
+    const previous = travelData?.trips[0];
+    const formattedTrips = travelData.formattedTrips;
 
     mapboxgl.accessToken = process.env.MAPBOX_GL_TOKEN || "";
     map.current = new mapboxgl.Map({
@@ -85,7 +86,7 @@ const Map = ({ travelData }: IProps) => {
     // Number of steps to use in the arc and animation, more steps means
     // a smoother arc and animation, but too many steps will result in a
     // low frame rate
-    const steps = 500;
+    const steps = 550;
 
     // Draw an arc between the `origin` & `destination` of the two points
     for (let i = 0; i < lineDistance; i += lineDistance / steps) {
@@ -100,25 +101,21 @@ const Map = ({ travelData }: IProps) => {
     let counter = 0;
 
     map.current.on("load", () => {
-      travelData.trips.map((trip, i) => {
-        const newPoint = getFormattedPoint(trip);
+      map.current.addSource("citiesVisited", {
+        type: "geojson",
+        data: formattedTrips,
+      });
 
-        map.current.addSource(`point${i}`, {
-          type: "geojson",
-          data: newPoint,
-        });
-
-        map.current.addLayer({
-          id: `point${i}`,
-          source: `point${i}`,
-          type: "circle",
-          paint: {
-            "circle-radius": 4,
-            "circle-stroke-width": 2,
-            "circle-color": "red",
-            "circle-stroke-color": "white",
-          },
-        });
+      map.current.addLayer({
+        id: "citiesVisited",
+        source: "citiesVisited",
+        type: "circle",
+        paint: {
+          "circle-radius": 4,
+          "circle-stroke-width": 2,
+          "circle-color": "red",
+          "circle-stroke-color": "white",
+        },
       });
       // Add a source and layer displaying a point which will be animated in a circle.
       map.current.addSource("route", {

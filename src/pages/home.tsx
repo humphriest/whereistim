@@ -5,7 +5,7 @@ import axios from "axios";
 import { HeaderTitleContainer, MainContainer } from "./home.styles";
 
 const Home: NextPage = () => {
-  const [travelData, setTravelData] = useState<ITravelData>();
+  const [travelData, setTravelData] = useState<ITravelDataResponse>();
 
   useEffect(() => {
     const getTravelDataFn = async () => {

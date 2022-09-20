@@ -9,6 +9,9 @@ declare interface ITravelData {
   map: string;
 }
 
+declare interface ITravelDataResponse extends ITravelData {
+  formattedTrips: IFeatureCollectionPoint;
+}
 declare interface ILocationData {
   city: string;
   country: string;
@@ -53,19 +56,26 @@ declare interface ITravelStats {
   cities_visited_percentage: number;
 }
 
-declare interface IFeature {
+declare interface IFeatureCollectionPoint {
+  type: "FeatureCollection";
+  features: IFeature[];
+}
+declare interface IFeaturePoint {
   type: "Feature";
   geometry: {
     type: "Point" | "LineString";
-    coordinated: [number, number];
+    coordinates: [number, number];
   };
 }
-declare interface IFeaturePoint {
-  type: "FeatureCollection";
-  features: IFeature[];
-}
 
-declare interface IFeatureRoute {
+declare interface IFeatureCollectionRoute {
   type: "FeatureCollection";
-  features: IFeature[];
+  features: IFeatureRoute[];
+}
+declare interface IFeatureRoute {
+  type: "Feature";
+  geometry: {
+    type: "Point" | "LineString";
+    coordinates: [[number, number], [number, number]];
+  };
 }
