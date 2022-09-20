@@ -189,7 +189,7 @@ const Map = ({ travelData }: IProps) => {
       // }
 
       // Start the animation
-      animate(counter);
+      // animate(counter);
     });
   }, [travelData]);
 
