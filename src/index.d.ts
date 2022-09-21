@@ -76,6 +76,6 @@ declare interface IFeatureRoute {
   type: "Feature";
   geometry: {
     type: "Point" | "LineString";
-    coordinates: [[number, number], [number, number]];
+    coordinates: number[][];
   };
 }
