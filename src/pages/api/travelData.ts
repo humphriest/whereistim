@@ -10,12 +10,26 @@ export default function handler(
   const formattedTripFeatures: IFeaturePoint[] = travelData.trips.map((trip) =>
     getFormattedPoint(trip)
   );
+  const formattedPreviousTrip: IFeaturePoint = getFormattedPoint(
+    travelData.location.previous
+  );
+  const formattedCurrentTrip: IFeaturePoint = getFormattedPoint(
+    travelData.location.now
+  );
 
   res.status(200).json({
     ...travelData,
     formattedTrips: {
       type: "FeatureCollection",
       features: formattedTripFeatures,
+    },
+    formattedPreviousTrip: {
+      type: "FeatureCollection",
+      features: [formattedPreviousTrip],
+    },
+    formattedCurrentTrip: {
+      type: "FeatureCollection",
+      features: [formattedCurrentTrip],
     },
   });
 }

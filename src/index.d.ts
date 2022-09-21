@@ -11,6 +11,8 @@ declare interface ITravelData {
 
 declare interface ITravelDataResponse extends ITravelData {
   formattedTrips: IFeatureCollectionPoint;
+  formattedPreviousTrip: IFeatureCollectionPoint;
+  formattedCurrentTrip: IFeatureCollectionPoint;
 }
 declare interface ILocationData {
   city: string;
@@ -62,6 +64,7 @@ declare interface IFeatureCollectionPoint {
 }
 declare interface IFeaturePoint {
   type: "Feature";
+  properties?: object;
   geometry: {
     type: "Point" | "LineString";
     coordinates: [number, number];
@@ -74,6 +77,7 @@ declare interface IFeatureCollectionRoute {
 }
 declare interface IFeatureRoute {
   type: "Feature";
+  properties?: object;
   geometry: {
     type: "Point" | "LineString";
     coordinates: number[][];
