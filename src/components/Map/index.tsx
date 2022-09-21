@@ -139,7 +139,7 @@ const Map = ({ travelData }: IProps) => {
     const end = {
       center: [longitude, latitude],
       zoom: 4,
-      bearing: 120,
+      bearing: 0,
       pitch: 5,
     };
 
