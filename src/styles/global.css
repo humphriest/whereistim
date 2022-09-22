@@ -3,6 +3,7 @@ body {
   background-color: #0c141f;
   height: 100%;
   margin: 0px;
+  scroll-behavior: smooth;
 }
 
 #__next {

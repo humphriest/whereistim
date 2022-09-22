@@ -6,6 +6,10 @@ export const MainContainer = styled.div`
 `;
 
 export const HeaderTitleContainer = styled.div`
-  color: #ffffff;
   margin-left: 50px;
+`;
+
+export const StyledLink = styled.a`
+  color: #ffffff;
+  text-decoration: none;
 `;

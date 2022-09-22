@@ -5,6 +5,12 @@ import { useEffect, useRef, useState } from "react";
 import "mapbox-gl/dist/mapbox-gl.css";
 import mapboxgl from "mapbox-gl";
 import * as turf from "@turf/turf";
+import {
+  ClickToContinueLink,
+  MapContainer,
+  ScrollDownSection,
+  ScrollDownSectionBackground,
+} from "./Map.styles";
 
 const steps = 500;
 
@@ -300,12 +306,17 @@ const Map = ({ travelData }: IProps) => {
 
   return (
     <>
-      <div id="map-container" style={{ width: "100%", height: "100vh" }} />;
-      <div className="linear-gradient-container">
-        <div className="click-to-slide">
-          <div className="click-to-continue-text">Click here to see below</div>
-        </div>
-      </div>
+      <MapContainer id="map-container" />;
+      <ScrollDownSection>
+        <ScrollDownSectionBackground>
+          <ClickToContinueLink
+            className="click-to-continue-text"
+            href="#travel-stats"
+          >
+            Click here to see below
+          </ClickToContinueLink>
+        </ScrollDownSectionBackground>
+      </ScrollDownSection>
     </>
   );
 };

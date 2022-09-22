@@ -3,6 +3,7 @@ import Map from "components/Map";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { HeaderTitleContainer, MainContainer } from "./home.styles";
+import Stats from "components/Stats/Stats";
 
 const Home: NextPage = () => {
   const [travelData, setTravelData] = useState<ITravelDataResponse>();
@@ -17,12 +18,15 @@ const Home: NextPage = () => {
 
   const renderMap = () => <Map travelData={travelData} />;
 
+  const renderStats = () => <Stats />;
+
   return (
     <MainContainer>
       <HeaderTitleContainer>
         This is where the magic happens
       </HeaderTitleContainer>
       {renderMap()}
+      {renderStats()}
     </MainContainer>
   );
 };
