@@ -6,23 +6,30 @@ import {
 } from "framer-motion";
 import { NextPage } from "next";
 import { useEffect } from "react";
+import { animatedNumberCounter } from "utils/animtedNumberCounter";
 import { typeWriter } from "utils/typewriter";
 import {
   BeerGlassContainer,
   BeerGlassLiquid,
   BeerStats,
   BorderBox,
+  DistanceTravelled,
   Glass,
   MainContainer,
   StatsBox,
+  StatsBoxContent,
   StatsContentContainer,
   StatsMainContainer,
   StatsTitleContainer,
   TravelStatsTitle,
 } from "./Stats.styles";
 
+interface IProps {
+  travelData?: ITravelDataResponse;
+}
 const STATS_TITLE = "MY TRAVEL STATS";
-const Stats: NextPage = () => {
+
+const Stats = ({ travelData }: IProps) => {
   const { scrollYProgress } = useScroll();
   const scale = useTransform(
     scrollYProgress,
@@ -41,6 +48,7 @@ const Stats: NextPage = () => {
   );
   const motionValue = useMotionValue(0);
   const amountOfBeer = useTransform(motionValue, [0, 1], [0, 1]);
+
   useEffect(() => {
     setTimeout(() => {
       animate(motionValue, 1, {
@@ -50,13 +58,21 @@ const Stats: NextPage = () => {
           motionValue.set(1);
         },
       });
-      console.log(motionValue.get());
     }, 1000);
 
     const travelTitleDocument = document.getElementById("stats-title");
-    if (travelTitleDocument) typeWriter(STATS_TITLE, travelTitleDocument);
+    if (travelTitleDocument) travelTitleDocument.innerHTML = STATS_TITLE;
+    // if (travelTitleDocument) typeWriter(STATS_TITLE, travelTitleDocument);
   }, []);
 
+  useEffect(() => {
+    const distanceTravelled = document.getElementById("distance-travelled");
+    if (distanceTravelled && travelData?.stats?.distance_traveled_km)
+      animatedNumberCounter(
+        travelData.stats.distance_traveled_km,
+        distanceTravelled
+      );
+  }, [travelData]);
   return (
     <MainContainer id="travel-stats">
       <StatsTitleContainer>
@@ -64,7 +80,12 @@ const Stats: NextPage = () => {
       </StatsTitleContainer>
       <StatsMainContainer>
         <StatsContentContainer>
-          <StatsBox style={{ scale, opacity }}>KMS TRAVELLED</StatsBox>
+          <StatsBox style={{ scale, opacity }}>
+            KMS TRAVELLED
+            <StatsBoxContent>
+              <DistanceTravelled id="distance-travelled" />
+            </StatsBoxContent>
+          </StatsBox>
           <StatsBox style={{ scale, opacity }}>AMOUNT OF TIME GONE</StatsBox>
           <StatsBox style={{ scale, opacity }}>
             NUMBER OF CITIES VISITED
@@ -76,7 +97,8 @@ const Stats: NextPage = () => {
                 <Glass>
                   <BeerGlassLiquid
                     style={{
-                      scaleY: motionValue.get() === 1 ? beer : amountOfBeer,
+                      // When adding more animation this might work
+                      scaleY: motionValue.get() == 1 ? beer : amountOfBeer,
                     }}
                   >
                     <BeerStats>TOO MUCH</BeerStats>

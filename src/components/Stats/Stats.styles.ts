@@ -57,17 +57,31 @@ export const StatsBox = styled(motion.div)`
   width: 200px;
   background-color: #f3f3f3;
   transform: rotate(90deg);
-
   color: black;
   font-size: 16px;
   text-align: center;
   font-size: 26px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 
   @media screen and (max-width: 760px) {
     margin: 0;
-    width: 100px;
-    height: 100px;
+    width: 120px;
+    height: 120px;
+
+    font-size: 18px;
   }
+`;
+
+export const StatsBoxContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: inherit;
+  font-size: 32px;
+  padding: 0 5px;
 `;
 
 export const StatsContentContainer = styled.div`
@@ -100,6 +114,14 @@ export const BorderBox = styled.div`
     height: 60px;
     border: 10px solid lightgray;
     border-radius: 10px;
+
+    @media screen and (max-width: 760px) {
+      height: 25px;
+      width: 10px;
+      border: 5px solid lightgray;
+      right: -10px;
+      top: 15px;
+    }
   }
 `;
 
@@ -110,9 +132,14 @@ export const Glass = styled.div`
   border-top: 50px solid white;
   background-color: #f3f3f3;
   border-radius: 5px;
-  border: 10px solid lightgray;
+  border: 5px solid lightgray;
   border-top: none;
   overflow: hidden;
+
+  @media screen and (max-width: 760px) {
+    width: 40px;
+    height: 60px;
+  }
 `;
 
 export const BeerGlassLiquid = styled(motion.div)`
@@ -128,4 +155,23 @@ export const BeerStats = styled.div`
   text-align: center;
   color: #f3f3f3;
   position: absolute;
+
+  @media screen and (max-width: 760px) {
+    padding: 0;
+    padding-top: 5px;
+  }
+`;
+
+export const DistanceTravelled = styled.div`
+  font-size: 36px;
+  text-align: center;
+
+  &::after {
+    content: "Kms";
+    padding-left: 5px;
+  }
+
+  @media screen and (max-width: 760px) {
+    font-size: 28px;
+  }
 `;
