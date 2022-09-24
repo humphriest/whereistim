@@ -9,6 +9,7 @@ import { useEffect } from "react";
 import { animatedNumberCounter } from "utils/animtedNumberCounter";
 import { typeWriter } from "utils/typewriter";
 import {
+  BackgroundBox,
   BeerGlassContainer,
   BeerGlassLiquid,
   BeerStats,
@@ -16,8 +17,10 @@ import {
   DistanceTravelled,
   Glass,
   MainContainer,
+  MainContentContainer,
   StatsBox,
   StatsBoxContent,
+  StatsBoxTitle,
   StatsContentContainer,
   StatsMainContainer,
   StatsTitleContainer,
@@ -73,44 +76,122 @@ const Stats = ({ travelData }: IProps) => {
         distanceTravelled
       );
   }, [travelData]);
+
+  const getTimeTravelled = () => {
+    const minute = 1000 * 60;
+    const hour = minute * 60;
+    const day = hour * 24;
+
+    const today = new Date();
+    const dateLeft = new Date("04/23/2022");
+    const timeDiff = Math.abs(dateLeft.getTime() - today.getTime());
+    const timeGone = Math.ceil(timeDiff / day);
+
+    return timeGone;
+  };
+
+  const renderBackgroundTiles = () => {
+    const colours = [
+      "#1F51FF",
+      "#E221CF",
+      "#FF3492",
+      "#FF7F5F",
+      "#FFC14C",
+      "#F9F871",
+    ];
+    // display squares with the same border radius
+    // different sizes
+    // one for each of the colours, maybe 2 of each colour
+    // they'll be placed on the screen at random using Math.random
+    // they'll have an opacity of 0.2/0.3
+    // when you scroll down they'll animate from the top down maybe
+    // that could be too many different animations
+    if (typeof window === "undefined") return <></>;
+
+    return (
+      <div
+        style={{
+          position: "absolute",
+          maxHeight: "100vh",
+          width: "100%",
+          height: "100%",
+          overflow: "hidden",
+        }}
+      >
+        {colours.map((colour, i) => {
+          const divSize = (Math.random() * 100 + 50).toFixed();
+
+          const posx = (
+            Math.random() *
+            (window.innerWidth - parseInt(divSize))
+          ).toFixed();
+          const posy = (
+            Math.random() *
+            (window.innerHeight - parseInt(divSize))
+          ).toFixed();
+
+          return (
+            <BackgroundBox
+              style={{
+                left: posx + "px",
+                top: posy + "px",
+                opacity: 0.65 * Math.random(),
+              }}
+              key={colour}
+              color={colour}
+            />
+          );
+        })}
+      </div>
+    );
+  };
+
   return (
     <MainContainer id="travel-stats">
-      <StatsTitleContainer>
-        <TravelStatsTitle id="stats-title" />
-      </StatsTitleContainer>
-      <StatsMainContainer>
-        <StatsContentContainer>
-          <StatsBox style={{ scale, opacity }}>
-            KMS TRAVELLED
-            <StatsBoxContent>
-              <DistanceTravelled id="distance-travelled" />
-            </StatsBoxContent>
-          </StatsBox>
-          <StatsBox style={{ scale, opacity }}>AMOUNT OF TIME GONE</StatsBox>
-          <StatsBox style={{ scale, opacity }}>
-            NUMBER OF CITIES VISITED
-          </StatsBox>
-          <StatsBox style={{ scale, opacity }}>
-            AMOUNT OF SHITE TALKED
-            <BeerGlassContainer>
-              <BorderBox>
-                <Glass>
-                  <BeerGlassLiquid
-                    style={{
-                      // When adding more animation this might work
-                      scaleY: motionValue.get() == 1 ? beer : amountOfBeer,
-                    }}
-                  >
-                    <BeerStats>TOO MUCH</BeerStats>
-                  </BeerGlassLiquid>
-                </Glass>
-              </BorderBox>
-            </BeerGlassContainer>
-          </StatsBox>
-          <StatsBox style={{ scale, opacity }}>DISTANCE AWAY FROM YOU</StatsBox>
-          <StatsBox style={{ scale, opacity }}>NUMBER OF PINTS</StatsBox>
-        </StatsContentContainer>
-      </StatsMainContainer>
+      {renderBackgroundTiles()}
+      <MainContentContainer>
+        <StatsTitleContainer>
+          <TravelStatsTitle id="stats-title" />
+        </StatsTitleContainer>
+        <StatsMainContainer>
+          <StatsContentContainer>
+            <StatsBox style={{ scale, opacity }}>
+              <StatsBoxTitle>KMS TRAVELLED</StatsBoxTitle>
+              <StatsBoxContent>
+                <DistanceTravelled id="distance-travelled" />
+              </StatsBoxContent>
+            </StatsBox>
+            <StatsBox style={{ scale, opacity }}>
+              <StatsBoxTitle>AMOUNT OF TIME GONE</StatsBoxTitle>
+              <StatsBoxContent>{getTimeTravelled()} days</StatsBoxContent>
+            </StatsBox>
+            <StatsBox style={{ scale, opacity }}>
+              <StatsBoxTitle>NUMBER OF CITIES VISITED</StatsBoxTitle>
+            </StatsBox>
+            <StatsBox style={{ scale, opacity }}>
+              AMOUNT OF SHITE TALKED
+              <BeerGlassContainer>
+                <BorderBox>
+                  <Glass>
+                    <BeerGlassLiquid
+                      style={{
+                        // When adding more animation this might work
+                        scaleY: motionValue.get() == 1 ? beer : amountOfBeer,
+                      }}
+                    >
+                      <BeerStats>TOO MUCH</BeerStats>
+                    </BeerGlassLiquid>
+                  </Glass>
+                </BorderBox>
+              </BeerGlassContainer>
+            </StatsBox>
+            <StatsBox style={{ scale, opacity }}>
+              DISTANCE AWAY FROM YOU
+            </StatsBox>
+            <StatsBox style={{ scale, opacity }}>NUMBER OF PINTS</StatsBox>
+          </StatsContentContainer>
+        </StatsMainContainer>
+      </MainContentContainer>
     </MainContainer>
   );
 };
