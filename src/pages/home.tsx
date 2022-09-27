@@ -41,11 +41,6 @@ const Home: NextPage<{ name: string }> = (props: { name: string }) => {
         currentLocationTitleId,
         runCallBack
       );
-
-      // axios.get(
-      //   `https://api.openweathermap.org/data/3.0/onecall?lat=${now.latitude}&lon=${now.longitude}&appid=06bdf6d946296e1f5016f48de6651884
-      //   `
-      // );
     }
   }, [travelData]);
 
