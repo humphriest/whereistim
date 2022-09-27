@@ -37,12 +37,12 @@ const Stats = ({ travelData }: IProps) => {
   const scale = useTransform(
     scrollYProgress,
     [0, 0.2, 0.4, 0.6, 0.8, 1],
-    [0, 0, 0, 0, 0, 1]
+    [0, 0, 0, 0.1, 0.3, 1]
   );
   const opacity = useTransform(
     scrollYProgress,
-    [0, 0.2, 0.4, 0.6, 1],
-    [0, 0, 0, 0, 1]
+    [0, 0.2, 0.4, 0.6, 0.8, 1],
+    [0, 0, 0, 0.1, 0.3, 1]
   );
   const beer = useTransform(
     scrollYProgress,
@@ -98,6 +98,12 @@ const Stats = ({ travelData }: IProps) => {
       "#FF7F5F",
       "#FFC14C",
       "#F9F871",
+      "#1F51FF50",
+      "#E221CF50",
+      "#FF349250",
+      "#FF7F5F50",
+      "#FFC14C50",
+      "#F9F87150",
     ];
     // display squares with the same border radius
     // different sizes
@@ -116,6 +122,7 @@ const Stats = ({ travelData }: IProps) => {
           width: "100%",
           height: "100%",
           overflow: "hidden",
+          zIndex: 999,
         }}
       >
         {colours.map((colour, i) => {
@@ -136,9 +143,9 @@ const Stats = ({ travelData }: IProps) => {
                 left: posx + "px",
                 top: posy + "px",
                 opacity: 0.65 * Math.random(),
+                backgroundColor: colour,
               }}
               key={colour}
-              color={colour}
             />
           );
         })}
@@ -146,49 +153,80 @@ const Stats = ({ travelData }: IProps) => {
     );
   };
 
+  const renderTitle = () => (
+    <StatsTitleContainer>
+      <TravelStatsTitle id="stats-title" />
+    </StatsTitleContainer>
+  );
+
+  const renderKmsTravelledTile = () => (
+    <StatsBox style={{ scale, opacity }}>
+      <StatsBoxTitle>KMS TRAVELLED</StatsBoxTitle>
+      <StatsBoxContent>
+        <DistanceTravelled id="distance-travelled" />
+      </StatsBoxContent>
+    </StatsBox>
+  );
+
+  const renderTimeGoneTile = () => (
+    <StatsBox style={{ scale, opacity }}>
+      <StatsBoxTitle>AMOUNT OF TIME GONE</StatsBoxTitle>
+      <StatsBoxContent>{getTimeTravelled()} days</StatsBoxContent>
+    </StatsBox>
+  );
+
+  const renderCitiesVisitedTile = () => (
+    <StatsBox style={{ scale, opacity }}>
+      <StatsBoxTitle>CITIES VISITED</StatsBoxTitle>
+      <StatsBoxContent>{travelData?.stats.cities}</StatsBoxContent>
+    </StatsBox>
+  );
+
+  const renderShiteTalkedTile = () => (
+    <StatsBox style={{ scale, opacity }}>
+      <StatsBoxTitle>AMOUNT OF SHITE TALKED</StatsBoxTitle>
+      {/* <StatsBoxContent>A LIFETIMES WORTH</StatsBoxContent> */}
+      <BeerGlassContainer>
+        <BorderBox>
+          <Glass>
+            <BeerGlassLiquid
+              style={{
+                // When adding more animation this might work
+                scaleY: motionValue.get() == 1 ? beer : amountOfBeer,
+              }}
+            >
+              <BeerStats>TOO MUCH</BeerStats>
+            </BeerGlassLiquid>
+          </Glass>
+        </BorderBox>
+      </BeerGlassContainer>
+    </StatsBox>
+  );
+
+  const renderDistanceAwayTile = () => (
+    <StatsBox style={{ scale, opacity }}>DISTANCE AWAY FROM YOU</StatsBox>
+  );
+
+  const renderPintsTile = () => (
+    <StatsBox style={{ scale, opacity }}>
+      AMOUNT OF PINTS
+      <StatsBoxContent>THAT DEPENDS, WHO&apos;S ASKING</StatsBoxContent>
+    </StatsBox>
+  );
+
   return (
     <MainContainer id="travel-stats">
       {renderBackgroundTiles()}
       <MainContentContainer>
-        <StatsTitleContainer>
-          <TravelStatsTitle id="stats-title" />
-        </StatsTitleContainer>
+        {renderTitle()}
         <StatsMainContainer>
           <StatsContentContainer>
-            <StatsBox style={{ scale, opacity }}>
-              <StatsBoxTitle>KMS TRAVELLED</StatsBoxTitle>
-              <StatsBoxContent>
-                <DistanceTravelled id="distance-travelled" />
-              </StatsBoxContent>
-            </StatsBox>
-            <StatsBox style={{ scale, opacity }}>
-              <StatsBoxTitle>AMOUNT OF TIME GONE</StatsBoxTitle>
-              <StatsBoxContent>{getTimeTravelled()} days</StatsBoxContent>
-            </StatsBox>
-            <StatsBox style={{ scale, opacity }}>
-              <StatsBoxTitle>NUMBER OF CITIES VISITED</StatsBoxTitle>
-            </StatsBox>
-            <StatsBox style={{ scale, opacity }}>
-              AMOUNT OF SHITE TALKED
-              <BeerGlassContainer>
-                <BorderBox>
-                  <Glass>
-                    <BeerGlassLiquid
-                      style={{
-                        // When adding more animation this might work
-                        scaleY: motionValue.get() == 1 ? beer : amountOfBeer,
-                      }}
-                    >
-                      <BeerStats>TOO MUCH</BeerStats>
-                    </BeerGlassLiquid>
-                  </Glass>
-                </BorderBox>
-              </BeerGlassContainer>
-            </StatsBox>
-            <StatsBox style={{ scale, opacity }}>
-              DISTANCE AWAY FROM YOU
-            </StatsBox>
-            <StatsBox style={{ scale, opacity }}>NUMBER OF PINTS</StatsBox>
+            {renderKmsTravelledTile()}
+            {renderTimeGoneTile()}
+            {renderCitiesVisitedTile()}
+            {renderShiteTalkedTile()}
+            {renderDistanceAwayTile()}
+            {renderPintsTile()}
           </StatsContentContainer>
         </StatsMainContainer>
       </MainContentContainer>

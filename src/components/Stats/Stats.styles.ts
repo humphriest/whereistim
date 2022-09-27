@@ -1,10 +1,6 @@
 import { motion } from "framer-motion";
 import styled, { css, keyframes } from "styled-components";
 
-interface IBackgroundBoxProps {
-  color: string;
-}
-
 const getBoxSize = () => {
   const boxSize = `${300 * Math.random()}px`;
   return css`
@@ -17,6 +13,9 @@ export const MainContainer = styled.div`
   width: 100%;
   height: 100%;
   margin-top: 97vh;
+  background-color: #0c141f;
+  z-index: 999;
+  position: absolute;
 `;
 
 export const MainContentContainer = styled.div`
@@ -29,12 +28,12 @@ export const MainContentContainer = styled.div`
   flex-direction: column;
 `;
 
-export const BackgroundBox = styled.div<IBackgroundBoxProps>`
-  background-color: ${({ color }) => color};
+export const BackgroundBox = styled.div`
   ${getBoxSize}
 
   border-radius: 10px;
   position: absolute;
+  filter: blur(3px);
 `;
 
 const blink = keyframes`
@@ -75,13 +74,18 @@ export const StatsMainContainer = styled.div`
   justify-content: center;
 `;
 
+export const StatBoxBackground = styled(motion.div)`
+  width: 130px;
+  height: 130px;
+  border-radius: 15px;
+`;
+
 export const StatsBox = styled(motion.div)`
   border: 20px solid #f3f3f3;
   border-radius: 15px;
   height: 200px;
   width: 200px;
   background-color: #f3f3f3;
-  transform: rotate(90deg);
   color: black;
   font-size: 16px;
   text-align: center;
@@ -94,7 +98,6 @@ export const StatsBox = styled(motion.div)`
     margin: 0;
     width: 120px;
     height: 120px;
-
     font-size: 18px;
   }
 `;
