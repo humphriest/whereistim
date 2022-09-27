@@ -1,3 +1,4 @@
+import { motion } from "framer-motion";
 import styled from "styled-components";
 
 export const MainContainer = styled.div`
@@ -9,7 +10,7 @@ export const MainContainer = styled.div`
   flex-direction: column;
 `;
 
-export const TitleText = styled.div`
+export const TitleText = styled(motion.div)`
   color: #ffffff;
   font-size: 15rem;
   font-weight: 600;
@@ -21,13 +22,13 @@ export const TitleText = styled.div`
   }
 `;
 
-export const Footer = styled.footer`
+export const Footer = styled(motion.footer)`
   position: fixed;
   bottom: 0;
   padding-bottom: 60px;
 `;
 
-export const DescriptionContainer = styled.div`
+export const DescriptionContainer = styled(motion.div)`
   display: flex;
   flex-direction: row;
   align-items: center;

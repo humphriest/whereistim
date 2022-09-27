@@ -12,9 +12,14 @@ import {
 } from "./index.styles";
 import { useEffect } from "react";
 import { useRouter } from "next/router";
+import { animate, useMotionValue, useTime, useTransform } from "framer-motion";
 
 const Home: NextPage = () => {
   const router = useRouter();
+  const motionValue = useMotionValue(0);
+  const titleScale = useTransform(motionValue, [0, 1], [1, 200]);
+  const restOfScreenScale = useTransform(motionValue, [0, 0.1], [1, 0]);
+
   useEffect(() => {
     window.addEventListener("keypress", actionListener);
     window.addEventListener("mousedown", actionListener);
@@ -27,16 +32,30 @@ const Home: NextPage = () => {
 
   const actionListener = (e: KeyboardEvent | MouseEvent) => {
     e.preventDefault();
-    router.push("/home");
+
+    animate(motionValue, 1, {
+      duration: 1.5,
+      ease: "easeInOut",
+      onComplete: () => {
+        router.push("/home");
+      },
+    });
   };
   return (
     <MainContainer>
-      <TitleText>WHERE IS TIM?</TitleText>
-      <DescriptionContainer>
+      <TitleText
+        style={{
+          scale: titleScale,
+          fontWeight: "bolder",
+        }}
+      >
+        WHERE IS TIM?
+      </TitleText>
+      <DescriptionContainer style={{ scale: restOfScreenScale }}>
         <StartDescriptionText>PRESS ANY KEY TO START</StartDescriptionText>
         <Image src={spinningCoin} alt="" width={80} height={80} />
       </DescriptionContainer>
-      <Footer>
+      <Footer style={{ scale: restOfScreenScale }}>
         <a
           style={{ color: "#FFFFFF" }}
           href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
