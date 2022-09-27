@@ -9,7 +9,7 @@ import {
   MainContainer,
   StartDescriptionText,
   TitleText,
-} from "./index.styles";
+} from "styles/index.styles";
 import { useEffect } from "react";
 import { useRouter } from "next/router";
 import { animate, useMotionValue, useTime, useTransform } from "framer-motion";
