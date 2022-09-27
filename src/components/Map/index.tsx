@@ -16,10 +16,11 @@ const steps = 500;
 
 interface IProps {
   travelData?: ITravelDataResponse;
+  onSelectShowState: () => void;
 }
 let isAtStart = true;
 
-const Map = ({ travelData }: IProps) => {
+const Map = ({ travelData, onSelectShowState }: IProps) => {
   const map = useRef<mapboxgl.Map | any>(null);
 
   useEffect(() => {
@@ -52,6 +53,7 @@ const Map = ({ travelData }: IProps) => {
       features: [
         {
           type: "Feature",
+          properties: {},
           geometry: {
             type: "LineString",
             coordinates: [origin, destination],
@@ -165,7 +167,8 @@ const Map = ({ travelData }: IProps) => {
     return {
       width: size,
       height: size,
-      data: new Uint8Array(size * size * 4),
+      data: new Uint8ClampedArray(size * size * 4),
+      context: null as CanvasRenderingContext2D | null,
 
       onAdd: function () {
         const canvas = document.createElement("canvas");
@@ -183,6 +186,7 @@ const Map = ({ travelData }: IProps) => {
         const outerRadius = (size / 2) * 0.7 * t + radius;
         const context = this.context;
 
+        if (!context) return false;
         // Draw the outer circle.
         context.clearRect(0, 0, this.width, this.height);
         context.beginPath();
@@ -312,6 +316,7 @@ const Map = ({ travelData }: IProps) => {
           <ClickToContinueLink
             className="click-to-continue-text"
             href="#travel-stats"
+            onClick={onSelectShowState}
           >
             Click here to see below
           </ClickToContinueLink>

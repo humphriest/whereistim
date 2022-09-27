@@ -68,9 +68,9 @@ declare interface IFeatureCollectionPoint {
 }
 declare interface IFeaturePoint {
   type: "Feature";
-  properties?: object;
+  properties: Properties;
   geometry: {
-    type: "Point" | "LineString";
+    type: "Point";
     coordinates: [number, number];
   };
 }
@@ -81,9 +81,9 @@ declare interface IFeatureCollectionRoute {
 }
 declare interface IFeatureRoute {
   type: "Feature";
-  properties?: object;
+  properties: Properties;
   geometry: {
-    type: "Point" | "LineString";
+    type: "LineString";
     coordinates: number[][];
   };
 }
