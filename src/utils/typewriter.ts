@@ -18,7 +18,7 @@ export const typeWriter = (
       callback?.();
     }
     if (i !== sentence.length && !isFinished) {
-      setTimeout(loop, 450);
+      setTimeout(loop, 400);
     }
 
     element.innerHTML = currentSentence.join("");
