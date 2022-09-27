@@ -1,3 +1,7 @@
+declare interface IRequest<Data> {
+  data: Data;
+}
+
 declare interface ITravelData {
   location: {
     now: ILocationData;
