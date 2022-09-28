@@ -14,7 +14,7 @@ import { animate, useMotionValue, useTransform } from "framer-motion";
 const Home: NextPage<{ name: string }> = (props: { name: string }) => {
   const [travelData, setTravelData] = useState<ITravelDataResponse>();
   const [shouldShowStats, setShouldShowState] = useState(false);
-  const [hasTypingFinished, setHasTypingFinished] = useState(false);
+  const [runEditAnimation, setRunEditAnimation] = useState(true);
   const motionValue = useMotionValue(0);
   const height = useTransform(motionValue, [0, 1], ["100%", "8vh"]);
 
@@ -36,11 +36,14 @@ const Home: NextPage<{ name: string }> = (props: { name: string }) => {
         document.getElementById("current-location");
       if (!currentLocationTitleId) return;
 
-      typeWriter(
-        `${now.city.toUpperCase()}, ${now.country.toUpperCase()}`,
-        currentLocationTitleId,
-        runCallBack
-      );
+      setTimeout(() => {
+        setRunEditAnimation(false);
+        typeWriter(
+          `${now.city.toUpperCase()}, ${now.country.toUpperCase()}`,
+          currentLocationTitleId,
+          runCallBack
+        );
+      }, 2800);
     }
   }, [travelData]);
 
@@ -50,7 +53,7 @@ const Home: NextPage<{ name: string }> = (props: { name: string }) => {
         duration: 1,
         ease: "easeInOut",
         onComplete: () => {
-          setHasTypingFinished(true);
+          setRunEditAnimation(true);
         },
       });
     }, 500);
@@ -61,7 +64,7 @@ const Home: NextPage<{ name: string }> = (props: { name: string }) => {
   };
 
   const renderMap = () =>
-    hasTypingFinished && (
+    runEditAnimation && (
       <Map travelData={travelData} onSelectShowState={onSelectShowState} />
     );
 
@@ -77,7 +80,7 @@ const Home: NextPage<{ name: string }> = (props: { name: string }) => {
       >
         <CityTitleContainer
           id="current-location"
-          hasTypingFinished={hasTypingFinished}
+          runEditAnimation={runEditAnimation}
         ></CityTitleContainer>
       </HeaderTitleContainer>
       {renderMap()}
