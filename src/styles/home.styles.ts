@@ -13,7 +13,7 @@ const blink = keyframes`
 }`;
 
 interface ITitleProps {
-  hasTypingFinished: boolean;
+  runEditAnimation: boolean;
 }
 
 export const MainContainer = styled.div`
@@ -44,8 +44,8 @@ export const CityTitleContainer = styled(motion.div)<ITitleProps>`
     content: "";
     margin-left: 5px;
     border-right: 2px solid white;
-    ${({ hasTypingFinished }) =>
-      hasTypingFinished
+    ${({ runEditAnimation }) =>
+      runEditAnimation
         ? css`
             animation: ${blink} 1.5s infinite ease;
           `
