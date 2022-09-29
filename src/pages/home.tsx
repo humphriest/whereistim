@@ -14,7 +14,7 @@ import { animate, useMotionValue, useTransform } from "framer-motion";
 const Home: NextPage<{ name: string }> = (props: { name: string }) => {
   const [travelData, setTravelData] = useState<ITravelDataResponse>();
   const [shouldShowStats, setShouldShowState] = useState(false);
-  const [hasTypingFinished, setHasTypingFinished] = useState(false);
+  const [runEditAnimation, setRunEditAnimation] = useState(true);
   const motionValue = useMotionValue(0);
   const height = useTransform(motionValue, [0, 1], ["100%", "8vh"]);
 
@@ -36,16 +36,14 @@ const Home: NextPage<{ name: string }> = (props: { name: string }) => {
         document.getElementById("current-location");
       if (!currentLocationTitleId) return;
 
-      typeWriter(
-        `${now.city.toUpperCase()}, ${now.country.toUpperCase()}`,
-        currentLocationTitleId,
-        runCallBack
-      );
-
-      // axios.get(
-      //   `https://api.openweathermap.org/data/3.0/onecall?lat=${now.latitude}&lon=${now.longitude}&appid=06bdf6d946296e1f5016f48de6651884
-      //   `
-      // );
+      setTimeout(() => {
+        setRunEditAnimation(false);
+        typeWriter(
+          `${now.city.toUpperCase()}, ${now.country.toUpperCase()}`,
+          currentLocationTitleId,
+          runCallBack
+        );
+      }, 2800);
     }
   }, [travelData]);
 
@@ -55,7 +53,7 @@ const Home: NextPage<{ name: string }> = (props: { name: string }) => {
         duration: 1,
         ease: "easeInOut",
         onComplete: () => {
-          setHasTypingFinished(true);
+          setRunEditAnimation(true);
         },
       });
     }, 500);
@@ -66,7 +64,7 @@ const Home: NextPage<{ name: string }> = (props: { name: string }) => {
   };
 
   const renderMap = () =>
-    hasTypingFinished && (
+    motionValue.get() === 1 && (
       <Map travelData={travelData} onSelectShowState={onSelectShowState} />
     );
 
@@ -82,7 +80,7 @@ const Home: NextPage<{ name: string }> = (props: { name: string }) => {
       >
         <CityTitleContainer
           id="current-location"
-          hasTypingFinished={hasTypingFinished}
+          runEditAnimation={runEditAnimation}
         ></CityTitleContainer>
       </HeaderTitleContainer>
       {renderMap()}

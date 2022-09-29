@@ -12,12 +12,12 @@ import {
 } from "styles/index.styles";
 import { useEffect } from "react";
 import { useRouter } from "next/router";
-import { animate, useMotionValue, useTime, useTransform } from "framer-motion";
+import { animate, useMotionValue, useTransform } from "framer-motion";
 
 const Home: NextPage = () => {
   const router = useRouter();
   const motionValue = useMotionValue(0);
-  const titleScale = useTransform(motionValue, [0, 1], [1, 200]);
+  const titleScale = useTransform(motionValue, [0, 1], [1, 40]);
   const restOfScreenScale = useTransform(motionValue, [0, 0.1], [1, 0]);
 
   useEffect(() => {
@@ -28,13 +28,13 @@ const Home: NextPage = () => {
       window.removeEventListener("keypress", actionListener);
       window.removeEventListener("mousedown", actionListener);
     };
-  }, [undefined]);
+  }, []);
 
   const actionListener = (e: KeyboardEvent | MouseEvent) => {
     e.preventDefault();
 
     animate(motionValue, 1, {
-      duration: 1.5,
+      duration: 1,
       ease: "easeInOut",
       onComplete: () => {
         router.push("/home");

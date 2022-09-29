@@ -70,6 +70,9 @@ const Map = ({ travelData, onSelectShowState }: IProps) => {
     const pulseIcon = createPulseIcon();
 
     map.current.on("load", () => {
+      const mapElement = document.getElementById("map-container");
+      if (mapElement) mapElement.style.visibility = "visible";
+
       map.current.addImage("pulsing-dot", pulseIcon, { pixelRatio: 2 });
 
       addSourceToMap(route, formattedCurrentTrip);
@@ -240,8 +243,25 @@ const Map = ({ travelData, onSelectShowState }: IProps) => {
       source: "route",
       type: "line",
       paint: {
-        "line-width": 2,
-        "line-color": "#007cbf",
+        "line-width": 4,
+        "line-color": "#1F51FF",
+        "line-gradient": [
+          "interpolate",
+          ["linear"],
+          ["line-progress"],
+          0,
+          "#FFC14C",
+          0.1,
+          "#FF7F5F",
+          0.3,
+          "#FF3492",
+          0.5,
+          "#E221CF",
+          0.7,
+          "#8221e2",
+          1,
+          "#1F51FF",
+        ],
       },
     });
 
@@ -273,6 +293,7 @@ const Map = ({ travelData, onSelectShowState }: IProps) => {
     map.current.addSource("route", {
       type: "geojson",
       data: route,
+      lineMetrics: true,
     });
 
     map.current.addSource("animating-plane", {
