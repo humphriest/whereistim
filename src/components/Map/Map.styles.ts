@@ -6,6 +6,7 @@ export const MapContainer = styled.div`
   position: fixed !important;
   top: 0;
   z-index: 5 !important;
+  visibility: hidden;
 `;
 
 export const ScrollDownSection = styled.div`
