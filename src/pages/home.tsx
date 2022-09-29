@@ -64,7 +64,7 @@ const Home: NextPage<{ name: string }> = (props: { name: string }) => {
   };
 
   const renderMap = () =>
-    runEditAnimation && (
+    motionValue.get() === 1 && (
       <Map travelData={travelData} onSelectShowState={onSelectShowState} />
     );
 
