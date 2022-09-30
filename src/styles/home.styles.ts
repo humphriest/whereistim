@@ -30,6 +30,11 @@ export const HeaderTitleContainer = styled(motion.div)`
   width: 100%;
   z-index: 999;
   position: absolute;
+
+  @media screen and (max-width: 768px) {
+    margin: 0 20px;
+    margin-top: 20px;
+  }
 `;
 
 export const CityTitleContainer = styled(motion.div)<ITitleProps>`
