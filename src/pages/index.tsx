@@ -17,7 +17,7 @@ import { animate, useMotionValue, useTransform } from "framer-motion";
 const Home: NextPage = () => {
   const router = useRouter();
   const motionValue = useMotionValue(0);
-  const titleScale = useTransform(motionValue, [0, 1], [1, 40]);
+  const titleScale = useTransform(motionValue, [0, 1], [1, 60]);
   const restOfScreenScale = useTransform(motionValue, [0, 0.1], [1, 0]);
 
   useEffect(() => {

@@ -1,5 +1,9 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { getFormattedPoint } from "utils/formatForMap";
+import {
+  getFormattedNextTrips,
+  getFormattedPoint,
+  getFormattedPreviousTrips,
+} from "utils/formatForMap";
 
 // https://nomadlist.com/@humphries_t.json
 
@@ -17,6 +21,9 @@ export default function handler(
     travelData.location.now
   );
 
+  const previousTrips = getFormattedPreviousTrips(travelData.trips);
+  const nextTrips = getFormattedNextTrips(travelData.trips);
+
   res.status(200).json({
     ...travelData,
     formattedTrips: {
@@ -30,6 +37,14 @@ export default function handler(
     formattedCurrentTrip: {
       type: "FeatureCollection",
       features: [formattedCurrentTrip],
+    },
+    formattedPreviousTrips: {
+      type: "FeatureCollection",
+      features: previousTrips,
+    },
+    formattedNextTrips: {
+      type: "FeatureCollection",
+      features: nextTrips,
     },
   });
 }

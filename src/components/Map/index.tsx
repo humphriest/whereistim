@@ -1,6 +1,5 @@
 import MapMarker from "components/MapMarker";
 import { useEffect, useRef, useState } from "react";
-import timPoint from "resources/svgs/timPoint.svg";
 import timPlane from "resources/images/tim-plane-test.png";
 import "mapbox-gl/dist/mapbox-gl.css";
 import mapboxgl from "mapbox-gl";
@@ -266,9 +265,20 @@ const Map = ({ travelData, onSelectShowState }: IProps) => {
       source: "citiesVisited",
       type: "circle",
       paint: {
-        "circle-radius": 4,
+        "circle-radius": 5,
         "circle-stroke-width": 2,
-        "circle-color": "red",
+        "circle-color": "#00FF00",
+        "circle-stroke-color": "white",
+      },
+    });
+    map.current.addLayer({
+      id: "nextCities",
+      source: "nextCities",
+      type: "circle",
+      paint: {
+        "circle-radius": 5,
+        "circle-stroke-width": 2,
+        "circle-color": "#FF0000",
         "circle-stroke-color": "white",
       },
     });
@@ -333,12 +343,18 @@ const Map = ({ travelData, onSelectShowState }: IProps) => {
 
     if (!travelData) return;
 
-    const { formattedTrips, formattedCurrentTrip } = travelData;
-    if (travelData?.formattedTrips)
+    const { formattedPreviousTrips, formattedNextTrips, formattedCurrentTrip } =
+      travelData;
+    if (travelData?.formattedPreviousTrips)
       map.current.addSource("citiesVisited", {
         type: "geojson",
-        data: formattedTrips,
+        data: formattedPreviousTrips,
       });
+
+    map.current.addSource("nextCities", {
+      type: "geojson",
+      data: formattedNextTrips,
+    });
 
     map.current.addSource("dot-point", {
       type: "geojson",

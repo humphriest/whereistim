@@ -1,8 +1,0 @@
-.marker {
-  background-image: url("../../resources/svgs/timPoint.svg");
-  background-size: cover;
-  width: 25px;
-  height: 25px;
-  cursor: pointer;
-  margin-top: 20px;
-}
