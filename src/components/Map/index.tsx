@@ -1,7 +1,7 @@
 import MapMarker from "components/MapMarker";
 import { useEffect, useRef, useState } from "react";
-// import timPoint from "resources/svgs/timPoint.svg";
-// import Image from "next/image";
+import timPoint from "resources/svgs/timPoint.svg";
+import timPlane from "resources/images/tim-plane-test.png";
 import "mapbox-gl/dist/mapbox-gl.css";
 import mapboxgl from "mapbox-gl";
 import * as turf from "@turf/turf";
@@ -75,6 +75,7 @@ const Map = ({ travelData, onSelectShowState }: IProps) => {
 
       map.current.addImage("pulsing-dot", pulseIcon, { pixelRatio: 2 });
 
+      addSvgTimbo();
       addSourceToMap(route, formattedCurrentTrip);
       addLayerToMap();
 
@@ -119,6 +120,16 @@ const Map = ({ travelData, onSelectShowState }: IProps) => {
             source: "animating-plane",
             layout: {
               "icon-image": "pulsing-dot",
+            },
+          });
+          map.current.addLayer({
+            id: "timePosePoint",
+            type: "symbol",
+            source: "timePosePoint",
+            layout: {
+              "icon-image": "tim-pose",
+              "icon-allow-overlap": true,
+              "icon-ignore-placement": true,
             },
           });
         }
@@ -200,15 +211,7 @@ const Map = ({ travelData, onSelectShowState }: IProps) => {
           0,
           Math.PI * 2
         );
-        context.fillStyle = `rgba(255, 200, 200, ${1 - t})`;
-        context.fill();
-
-        // Draw the inner circle.
-        context.beginPath();
-        context.arc(this.width / 2, this.height / 2, radius, 0, Math.PI * 2);
-        context.fillStyle = "rgba(255, 100, 100, .5)";
-        context.strokeStyle = "white";
-        context.lineWidth = 2 + 4 * (1 - t);
+        context.fillStyle = `rgba(31, 81, 255, ${1 - t})`;
         context.fill();
         context.stroke();
 
@@ -223,6 +226,38 @@ const Map = ({ travelData, onSelectShowState }: IProps) => {
         return true;
       },
     };
+  };
+
+  const addSvgTimbo = () => {
+    map.current.loadImage(
+      "https://raw.githubusercontent.com/humphriest/whereistim/main/src/resources/images/timbo-pose.png",
+      (error?: Error, image?: HTMLImageElement | ImageBitmap) => {
+        if (error) return;
+
+        map.current.addImage("tim-pose", image, {
+          pixelRatio: 30,
+        });
+
+        map.current.addSource("timePosePoint", {
+          type: "geojson",
+          data: {
+            type: "FeatureCollection",
+            features: [
+              {
+                type: "Feature",
+                geometry: {
+                  type: "Point",
+                  coordinates: [
+                    travelData?.location.now.longitude,
+                    travelData?.location.now.latitude,
+                  ],
+                },
+              },
+            ],
+          },
+        });
+      }
+    );
   };
 
   const addLayerToMap = () => {
@@ -270,11 +305,6 @@ const Map = ({ travelData, onSelectShowState }: IProps) => {
       source: "animating-plane",
       type: "symbol",
       layout: {
-        // This icon is a part of the Mapbox Streets style.
-        // To view all images available in a Mapbox style, open
-        // the style in Mapbox Studio and click the "Images" tab.
-        // To add a new image to the style at runtime see
-        // https://docs.mapbox.com/mapbox-gl-js/example/add-image/
         "icon-image": "airport-15",
         "icon-size": 2,
         "icon-rotate": ["get", "bearing"],
