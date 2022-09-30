@@ -11,7 +11,7 @@ import Stats from "components/Stats/Stats";
 import { typeWriter } from "utils/typewriter";
 import { animate, useMotionValue, useTransform } from "framer-motion";
 
-const Home: NextPage<{ name: string }> = (props: { name: string }) => {
+const Home: NextPage = () => {
   const [travelData, setTravelData] = useState<ITravelDataResponse>();
   const [shouldShowStats, setShouldShowState] = useState(false);
   const [runEditAnimation, setRunEditAnimation] = useState(true);
@@ -84,7 +84,7 @@ const Home: NextPage<{ name: string }> = (props: { name: string }) => {
         ></CityTitleContainer>
       </HeaderTitleContainer>
       {renderMap()}
-      {renderStats()}
+      {/* {renderStats()} */}
     </MainContainer>
   );
 };

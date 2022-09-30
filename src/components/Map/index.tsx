@@ -380,13 +380,13 @@ const Map = ({ travelData, onSelectShowState }: IProps) => {
       <MapContainer id="map-container" />;
       <ScrollDownSection>
         <ScrollDownSectionBackground>
-          <ClickToContinueLink
+          {/* <ClickToContinueLink
             className="click-to-continue-text"
             href="#travel-stats"
             onClick={onSelectShowState}
           >
             Click here to see below
-          </ClickToContinueLink>
+          </ClickToContinueLink> */}
         </ScrollDownSectionBackground>
       </ScrollDownSection>
     </>
