@@ -1,17 +1,12 @@
-import MapMarker from "components/MapMarker";
-import { useEffect, useRef, useState } from "react";
-import timPlane from "resources/images/tim-plane-test.png";
+// import MapMarker from "components/MapMarker";
+import { useEffect, useRef } from "react";
+// import timPlane from "resources/images/tim-plane-test.png";
 import "mapbox-gl/dist/mapbox-gl.css";
 import mapboxgl from "mapbox-gl";
 import * as turf from "@turf/turf";
-import {
-  ClickToContinueLink,
-  MapContainer,
-  ScrollDownSection,
-  ScrollDownSectionBackground,
-} from "./Map.styles";
-
-const steps = 500;
+import { MapContainer } from "./Map.styles";
+import "styles/Map.module.css";
+const steps = 200;
 
 interface IProps {
   travelData?: ITravelDataResponse;
@@ -26,15 +21,15 @@ const Map = ({ travelData, onSelectShowState }: IProps) => {
     if (!travelData) return;
 
     const now = travelData?.location.now;
-    const dublin = travelData?.trips[0];
+    const dublin = travelData?.trips[travelData.trips.length - 1];
     const formattedCurrentTrip = travelData.formattedCurrentTrip;
 
     mapboxgl.accessToken = process.env.MAPBOX_GL_TOKEN || "";
     map.current = new mapboxgl.Map({
       container: "map-container",
       style: "mapbox://styles/mapbox/dark-v10",
-      center: [dublin?.longitude as number, dublin?.latitude as number],
-      zoom: 6,
+      center: [now?.longitude as number, now?.latitude as number],
+      zoom: 2,
       pitch: 10,
       projection: { name: "globe" },
     });
@@ -138,6 +133,7 @@ const Map = ({ travelData, onSelectShowState }: IProps) => {
       flyToCurrentLocation();
       animate(counter);
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [travelData]);
 
   const flyToCurrentLocation = () => {
@@ -150,7 +146,8 @@ const Map = ({ travelData, onSelectShowState }: IProps) => {
       trips,
     } = travelData;
 
-    const startLocation = trips[0];
+    const startLocation = trips[trips.length - 1];
+
     const start = {
       center: [startLocation.longitude, startLocation.latitude],
       zoom: 1,
@@ -169,7 +166,7 @@ const Map = ({ travelData, onSelectShowState }: IProps) => {
 
     map.current.flyTo({
       ...target,
-      duration: 10000,
+      duration: 6000,
       essential: true,
     });
   };
@@ -234,7 +231,7 @@ const Map = ({ travelData, onSelectShowState }: IProps) => {
         if (error) return;
 
         map.current.addImage("tim-pose", image, {
-          pixelRatio: 30,
+          pixelRatio: 20,
         });
 
         map.current.addSource("timePosePoint", {
@@ -260,29 +257,6 @@ const Map = ({ travelData, onSelectShowState }: IProps) => {
   };
 
   const addLayerToMap = () => {
-    map.current.addLayer({
-      id: "citiesVisited",
-      source: "citiesVisited",
-      type: "circle",
-      paint: {
-        "circle-radius": 5,
-        "circle-stroke-width": 2,
-        "circle-color": "#00FF00",
-        "circle-stroke-color": "white",
-      },
-    });
-    map.current.addLayer({
-      id: "nextCities",
-      source: "nextCities",
-      type: "circle",
-      paint: {
-        "circle-radius": 5,
-        "circle-stroke-width": 2,
-        "circle-color": "#FF0000",
-        "circle-stroke-color": "white",
-      },
-    });
-
     map.current.addLayer({
       id: "route",
       source: "route",
@@ -345,11 +319,56 @@ const Map = ({ travelData, onSelectShowState }: IProps) => {
 
     const { formattedPreviousTrips, formattedNextTrips, formattedCurrentTrip } =
       travelData;
-    if (travelData?.formattedPreviousTrips)
-      map.current.addSource("citiesVisited", {
-        type: "geojson",
-        data: formattedPreviousTrips,
-      });
+    if (!!formattedPreviousTrips) {
+      formattedPreviousTrips.map(
+        ({ longitude, latitude, place, country, length }) => {
+          const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(`<div>
+          ${place}, ${country}
+          <br />
+          ${length} days
+        </div>`);
+
+          const el = document.createElement("div");
+          el.className = "marker";
+          el.style.width = "12px";
+          el.style.height = "12px";
+          el.style.borderRadius = "12px";
+          el.style.backgroundSize = "100%";
+          el.style.backgroundColor = "#00FF00";
+          el.style.border = "2px solid #FFFFFF";
+
+          new mapboxgl.Marker(el)
+            .setLngLat([longitude, latitude])
+            .setPopup(popup)
+            .addTo(map.current);
+        }
+      );
+    }
+    if (!!formattedNextTrips) {
+      formattedNextTrips.map(
+        ({ longitude, latitude, place, country, length }) => {
+          const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(`<div>
+          ${place}, ${country}
+          <br />
+          ${length} days
+        </div>`);
+
+          const el = document.createElement("div");
+          el.className = "marker";
+          el.style.width = "12px";
+          el.style.height = "12px";
+          el.style.borderRadius = "12px";
+          el.style.backgroundSize = "100%";
+          el.style.backgroundColor = "#FF0000";
+          el.style.border = "2px solid #FFFFFF";
+
+          new mapboxgl.Marker(el)
+            .setLngLat([longitude, latitude])
+            .setPopup(popup)
+            .addTo(map.current);
+        }
+      );
+    }
 
     map.current.addSource("nextCities", {
       type: "geojson",
@@ -375,22 +394,7 @@ const Map = ({ travelData, onSelectShowState }: IProps) => {
     return arc;
   };
 
-  return (
-    <>
-      <MapContainer id="map-container" />;
-      {/* <ScrollDownSection>
-        <ScrollDownSectionBackground>
-          <ClickToContinueLink
-            className="click-to-continue-text"
-            href="#travel-stats"
-            onClick={onSelectShowState}
-          >
-            Click here to see below
-          </ClickToContinueLink>
-        </ScrollDownSectionBackground>
-      </ScrollDownSection> */}
-    </>
-  );
+  return <MapContainer id="map-container" />;
 };
 
 export default Map;
