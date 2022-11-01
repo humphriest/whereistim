@@ -5,7 +5,7 @@ import "mapbox-gl/dist/mapbox-gl.css";
 import mapboxgl from "mapbox-gl";
 import * as turf from "@turf/turf";
 import { MapContainer } from "./Map.styles";
-import "styles/Map.module.css";
+// import "styles/Map.module.css";
 const steps = 200;
 
 interface IProps {
@@ -88,7 +88,7 @@ const Map = ({ travelData, onSelectShowState }: IProps) => {
         // Update point geometry to a new position based on counter denoting
         // the index to access the arc
         formattedCurrentTrip.features[0].geometry.coordinates = route
-          .features[0].geometry.coordinates[counter] as [number, number]; 
+          .features[0].geometry.coordinates[counter] as [number, number];
 
         // Calculate the bearing to ensure the icon is rotated to match the route arc
         // The bearing is calculated between the current point and the next point, except
