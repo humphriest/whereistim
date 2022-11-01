@@ -87,8 +87,8 @@ const Map = ({ travelData, onSelectShowState }: IProps) => {
 
         // Update point geometry to a new position based on counter denoting
         // the index to access the arc
-        formattedCurrentTrip.features[0].geometry.coordinates =
-          route.features[0].geometry.coordinates[counter];
+        formattedCurrentTrip.features[0].geometry.coordinates = route
+          .features[0].geometry.coordinates[counter] as [number, number]; 
 
         // Calculate the bearing to ensure the icon is rotated to match the route arc
         // The bearing is calculated between the current point and the next point, except

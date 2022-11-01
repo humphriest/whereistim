@@ -28,6 +28,7 @@ const Home: NextPage = () => {
       window.removeEventListener("keypress", actionListener);
       window.removeEventListener("mousedown", actionListener);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const actionListener = (e: KeyboardEvent | MouseEvent) => {

@@ -65,7 +65,8 @@ const Stats = ({ travelData }: IProps) => {
 
     const travelTitleDocument = document.getElementById("stats-title");
     if (travelTitleDocument) travelTitleDocument.innerHTML = STATS_TITLE;
-    // if (travelTitleDocument) typeWriter(STATS_TITLE, travelTitleDocument);
+    // if (travelTitleDocument) typeWriter(STATS_TITLE, travelTitleDocument)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {

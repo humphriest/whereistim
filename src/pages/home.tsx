@@ -40,6 +40,7 @@ const Home: NextPage = () => {
         runCallBack
       );
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [travelData]);
 
   const runCallBack = () => {
