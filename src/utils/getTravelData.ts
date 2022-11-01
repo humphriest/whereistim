@@ -1,70 +1,39 @@
-import type { NextApiRequest, NextApiResponse } from "next";
+import axios, { AxiosResponse } from "axios";
 import {
   getFormattedNextTrips,
   getFormattedPoint,
   getFormattedPreviousTrips,
 } from "utils/formatForMap";
 
-// https://nomadlist.com/@humphries_t.json
-
-export default function handler(
-  req: NextApiRequest,
-  res: NextApiResponse<ITravelDataResponse>
-) {
-  const formattedTripFeatures: IFeaturePoint[] = travelData.trips.map((trip) =>
-    getFormattedPoint(trip)
-  );
-  const formattedPreviousTrip: IFeaturePoint = getFormattedPoint(
-    travelData.location.previous
-  );
-  const formattedCurrentTrip: IFeaturePoint = getFormattedPoint(
-    travelData.location.now
-  );
-
-  const previousTrips = getFormattedPreviousTrips(travelData.trips);
-  const nextTrips = getFormattedNextTrips(travelData.trips);
-
-  res.status(200).json({
-    ...travelData,
-    formattedTrips: {
-      type: "FeatureCollection",
-      features: formattedTripFeatures,
-    },
-    formattedPreviousTrip: {
-      type: "FeatureCollection",
-      features: [formattedPreviousTrip],
-    },
-    formattedCurrentTrip: {
-      type: "FeatureCollection",
-      features: [formattedCurrentTrip],
-    },
-    formattedPreviousTrips: {
-      type: "FeatureCollection",
-      features: previousTrips,
-    },
-    formattedNextTrips: {
-      type: "FeatureCollection",
-      features: nextTrips,
-    },
-  });
-}
-
-const travelData: ITravelData = {
+const fallbackTravelData: ITravelData = {
   location: {
     now: {
-      city: "Edmonton",
+      city: "Ottawa",
       country: "Canada",
       country_code: "CA",
-      latitude: 53.544389,
-      longitude: -113.4909267,
-      epoch_start: 1663372800,
-      epoch_end: 1664496000,
-      date_start: "2022-09-17",
-      date_end: "2022-09-30",
+      latitude: 45.4215296,
+      longitude: -75.6971931,
+      epoch_start: 1666915200,
+      epoch_end: 1668211200,
+      date_start: "2022-10-28",
+      date_end: "2022-11-12",
       place_photo:
-        "https://nomadlist.com/cdn-cgi/image/format=auto,fit=cover,width=100,height=100/https://nomadlist.com/assets/img/places/edmonton-canada.jpg?1642982507",
+        "https://nomadlist.com/cdn-cgi/image/format=auto,fit=cover,width=100,height=100/https://nomadlist.com/assets/img/places/ottawa-canada.jpg?1642528936",
     },
     next: {
+      city: "Iqaluit",
+      country: "Canada",
+      country_code: "CA",
+      latitude: 63.74944,
+      longitude: -68.521857,
+      epoch_start: 1668211200,
+      epoch_end: 1668816000,
+      date_start: "2022-11-12",
+      date_end: "2022-11-19",
+      place_photo:
+        "https://nomadlist.com/cdn-cgi/image/format=auto,fit=cover,width=100,height=100/https://nomadlist.com/assets/img/places/https://nomadlist.com/cdn-cgi/image/format=auto,fit=cover,width=600,height=300,quality=25/https://nomadlist.com/assets/img/places/canada.jpg?1653007433.jpg?",
+    },
+    previous: {
       city: "Toronto",
       country: "Canada",
       country_code: "CA",
@@ -74,32 +43,19 @@ const travelData: ITravelData = {
       epoch_end: 1666915200,
       date_start: "2022-09-30",
       date_end: "2022-10-28",
-      place_photo:
-        "https://nomadlist.com/cdn-cgi/image/format=auto,fit=cover,width=100,height=100/https://nomadlist.com/assets/img/places/toronto-canada.jpg?1656633769",
-    },
-    previous: {
-      city: "Calgary",
-      country: "Canada",
-      country_code: "CA",
-      latitude: 51.0486151,
-      longitude: -114.0708459,
-      epoch_start: 1662336000,
-      epoch_end: 1663372800,
-      date_start: "2022-09-05",
-      date_end: "2022-09-17",
     },
   },
   stats: {
-    cities: 13,
+    cities: 15,
     countries: 6,
     followers: 0,
     following: 0,
-    distance_traveled_km: 15583,
-    distance_traveled_miles: 9683,
+    distance_traveled_km: 18640,
+    distance_traveled_miles: 11582,
     countries_visited_percentage: 0.031088082901554404,
-    cities_visited_percentage: 0.009579955784819455,
+    cities_visited_percentage: 0.01105379513633014,
   },
-  map: "https://nomadlist.com/screenshot?url=%40humphries_t%3Fmap_only%3Dtrue%26key%3D9bb2813b8e67a2ba1e0271f26a16454a&width=1200&height=600&wait_until_dom=true&cachebuster=2022-09",
+  map: "https://nomadlist.com/screenshot?url=%40humphries_t%3Fmap_only%3Dtrue%26key%3D9bb2813b8e67a2ba1e0271f26a16454a&width=1200&height=600&wait_until_dom=true&cachebuster=2022-10",
   trips: [
     {
       epoch_start: 1671235200,
@@ -233,7 +189,7 @@ const travelData: ITravelData = {
       place_long_slug: "calgary-canada",
       place_url: "https://nomadlist.com/calgary-canada",
       place_photo:
-        "https://nomadlist.com/cdn-cgi/image/format=auto,fit=cover,width=100,height=100/https://nomadlist.com/assets/img/places/calgary-canada.jpg?1642723429",
+        "https://nomadlist.com/cdn-cgi/image/format=auto,fit=cover,width=100,height=100/https://nomadlist.com/assets/img/places/calgary-canada.jpg?1663805118",
       country: "Canada",
       country_code: "CA",
       country_slug: "canada",
@@ -313,7 +269,7 @@ const travelData: ITravelData = {
       place_long_slug: "calgary-canada",
       place_url: "https://nomadlist.com/calgary-canada",
       place_photo:
-        "https://nomadlist.com/cdn-cgi/image/format=auto,fit=cover,width=100,height=100/https://nomadlist.com/assets/img/places/calgary-canada.jpg?1642723429",
+        "https://nomadlist.com/cdn-cgi/image/format=auto,fit=cover,width=100,height=100/https://nomadlist.com/assets/img/places/calgary-canada.jpg?1663805118",
       country: "Canada",
       country_code: "CA",
       country_slug: "canada",
@@ -393,7 +349,7 @@ const travelData: ITravelData = {
       place_long_slug: "vancouver-canada",
       place_url: "https://nomadlist.com/vancouver-canada",
       place_photo:
-        "https://nomadlist.com/cdn-cgi/image/format=auto,fit=cover,width=100,height=100/https://nomadlist.com/assets/img/places/vancouver-canada.jpg?1661126512",
+        "https://nomadlist.com/cdn-cgi/image/format=auto,fit=cover,width=100,height=100/https://nomadlist.com/assets/img/places/vancouver-canada.jpg?1666829011",
       country: "Canada",
       country_code: "CA",
       country_slug: "canada",
@@ -523,3 +479,75 @@ const travelData: ITravelData = {
     },
   ],
 };
+const getTravelData = async (): Promise<ITravelDataResponse> => {
+  try {
+    const response: AxiosResponse<ITravelData> = await axios.get(
+      "https://nomadlist.com/@humphries_t.json"
+    );
+
+    const travelData = response.data;
+    const formattedTripFeatures: IFeaturePoint[] = travelData.trips.map(
+      (trip) => getFormattedPoint(trip)
+    );
+    const formattedPreviousTrip: IFeaturePoint = getFormattedPoint(
+      travelData.location.previous
+    );
+    const formattedCurrentTrip: IFeaturePoint = getFormattedPoint(
+      travelData.location.now
+    );
+
+    const previousTrips = getFormattedPreviousTrips(travelData.trips);
+    const nextTrips = getFormattedNextTrips(travelData.trips);
+
+    return {
+      ...travelData,
+      formattedTrips: {
+        type: "FeatureCollection",
+        features: formattedTripFeatures,
+      },
+      formattedPreviousTrip: {
+        type: "FeatureCollection",
+        features: [formattedPreviousTrip],
+      },
+      formattedCurrentTrip: {
+        type: "FeatureCollection",
+        features: [formattedCurrentTrip],
+      },
+      formattedPreviousTrips: previousTrips,
+      formattedNextTrips: nextTrips,
+    };
+  } catch (err) {
+    const formattedTripFeatures: IFeaturePoint[] = fallbackTravelData.trips.map(
+      (trip) => getFormattedPoint(trip)
+    );
+    const formattedPreviousTrip: IFeaturePoint = getFormattedPoint(
+      fallbackTravelData.location.previous
+    );
+    const formattedCurrentTrip: IFeaturePoint = getFormattedPoint(
+      fallbackTravelData.location.now
+    );
+
+    const previousTrips = getFormattedPreviousTrips(fallbackTravelData.trips);
+    const nextTrips = getFormattedNextTrips(fallbackTravelData.trips);
+
+    return {
+      ...fallbackTravelData,
+      formattedTrips: {
+        type: "FeatureCollection",
+        features: formattedTripFeatures,
+      },
+      formattedPreviousTrip: {
+        type: "FeatureCollection",
+        features: [formattedPreviousTrip],
+      },
+      formattedCurrentTrip: {
+        type: "FeatureCollection",
+        features: [formattedCurrentTrip],
+      },
+      formattedPreviousTrips: previousTrips,
+      formattedNextTrips: nextTrips,
+    };
+  }
+};
+
+export default getTravelData;

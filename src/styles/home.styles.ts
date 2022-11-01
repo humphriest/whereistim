@@ -13,7 +13,7 @@ const blink = keyframes`
 }`;
 
 interface ITitleProps {
-  runEditAnimation: boolean;
+  animate: boolean;
 }
 
 export const MainContainer = styled.div`
@@ -49,8 +49,8 @@ export const CityTitleContainer = styled(motion.div)<ITitleProps>`
     content: "";
     margin-left: 5px;
     border-right: 2px solid white;
-    ${({ runEditAnimation }) =>
-      runEditAnimation
+    ${({ animate }) =>
+      animate
         ? css`
             animation: ${blink} 1.5s infinite ease;
           `

@@ -1,15 +1,14 @@
 import { NextPage } from "next";
 import Map from "components/Map";
 import { useEffect, useState } from "react";
-import axios from "axios";
 import {
   CityTitleContainer,
   HeaderTitleContainer,
   MainContainer,
 } from "styles/home.styles";
-import Stats from "components/Stats/Stats";
 import { typeWriter } from "utils/typewriter";
 import { animate, useMotionValue, useTransform } from "framer-motion";
+import getTravelData from "utils/getTravelData";
 
 const Home: NextPage = () => {
   const [travelData, setTravelData] = useState<ITravelDataResponse>();
@@ -20,10 +19,8 @@ const Home: NextPage = () => {
 
   useEffect(() => {
     const getTravelDataFn = async () => {
-      const travelDataResponse: IRequest<ITravelDataResponse> = await axios.get(
-        "/api/travelData"
-      );
-      setTravelData(travelDataResponse.data);
+      const travelDataResponse: ITravelDataResponse = await getTravelData();
+      setTravelData(travelDataResponse);
     };
     getTravelDataFn();
   }, []);
@@ -36,14 +33,12 @@ const Home: NextPage = () => {
         document.getElementById("current-location");
       if (!currentLocationTitleId) return;
 
-      setTimeout(() => {
-        setRunEditAnimation(false);
-        typeWriter(
-          `${now.city.toUpperCase()}, ${now.country.toUpperCase()}`,
-          currentLocationTitleId,
-          runCallBack
-        );
-      }, 2800);
+      setRunEditAnimation(false);
+      typeWriter(
+        `${now.city.toUpperCase()}, ${now.country.toUpperCase()}`,
+        currentLocationTitleId,
+        runCallBack
+      );
     }
   }, [travelData]);
 
@@ -68,9 +63,6 @@ const Home: NextPage = () => {
       <Map travelData={travelData} onSelectShowState={onSelectShowState} />
     );
 
-  const renderStats = () =>
-    shouldShowStats && <Stats travelData={travelData} />;
-
   return (
     <MainContainer>
       <HeaderTitleContainer
@@ -80,11 +72,10 @@ const Home: NextPage = () => {
       >
         <CityTitleContainer
           id="current-location"
-          runEditAnimation={runEditAnimation}
+          animate={runEditAnimation}
         ></CityTitleContainer>
       </HeaderTitleContainer>
       {renderMap()}
-      {/* {renderStats()} */}
     </MainContainer>
   );
 };

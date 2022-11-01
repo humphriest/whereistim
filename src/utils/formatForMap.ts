@@ -27,13 +27,10 @@ export const getFormattedRoute = (
 export const getFormattedPreviousTrips = (trips: ITrip[]) =>
   trips
     .filter(
-      (trip) =>
-        new Date() > new Date(trip.date_start) &&
-        new Date(trip.date_end) <= new Date()
+      ({ date_start, date_end }) =>
+        new Date() > new Date(date_start) && new Date(date_end) <= new Date()
     )
-    .map((trip) => getFormattedPoint(trip));
+    .map((trip) => trip);
 
 export const getFormattedNextTrips = (trips: ITrip[]) =>
-  trips
-    .filter((trip) => new Date(trip.date_end) > new Date())
-    .map((trip) => getFormattedPoint(trip));
+  trips.filter(({ date_start }) => new Date() < new Date(date_start));
