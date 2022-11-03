@@ -8,7 +8,8 @@ import {
 } from "styles/home.styles";
 import { typeWriter } from "utils/typewriter";
 import { animate, useMotionValue, useTransform } from "framer-motion";
-import getTravelData from "utils/getTravelData";
+import getTravelData from "apis/travelData";
+import { getTimezone } from "apis/timezone";
 
 const Home: NextPage = () => {
   const [travelData, setTravelData] = useState<ITravelDataResponse>();
@@ -26,22 +27,29 @@ const Home: NextPage = () => {
   }, []);
 
   useEffect(() => {
-    if (travelData) {
-      const now = travelData?.location?.now;
-
-      const currentLocationTitleId =
-        document.getElementById("current-location");
-      if (!currentLocationTitleId) return;
-
-      setRunEditAnimation(false);
-      typeWriter(
-        `${now.city.toUpperCase()}, ${now.country.toUpperCase()}`,
-        currentLocationTitleId,
-        runCallBack
-      );
-    }
+    setHeader();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [travelData]);
+
+  const setHeader = async () => {
+    if (!travelData) return null;
+
+    const now = travelData?.location?.now;
+    const dublin = travelData?.trips?.[travelData?.trips.length - 1];
+
+    const currentLocationTitleId = document.getElementById("current-location");
+    if (!currentLocationTitleId) return;
+
+    setRunEditAnimation(false);
+
+    const formattedTime = await getTimezone(dublin.latitude, dublin.longitude);
+
+    typeWriter(
+      `${now.city.toUpperCase()}, ${now.country.toUpperCase()} \n ${formattedTime?.toUpperCase()}`,
+      currentLocationTitleId,
+      runCallBack
+    );
+  };
 
   const runCallBack = () => {
     setTimeout(() => {
@@ -71,10 +79,7 @@ const Home: NextPage = () => {
           height,
         }}
       >
-        <CityTitleContainer
-          id="current-location"
-          animate={runEditAnimation}
-        ></CityTitleContainer>
+        <CityTitleContainer id="current-location" animate={runEditAnimation} />
       </HeaderTitleContainer>
       {renderMap()}
     </MainContainer>
