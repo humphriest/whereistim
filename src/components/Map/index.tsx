@@ -1,20 +1,17 @@
-// import MapMarker from "components/MapMarker";
 import { useEffect, useRef } from "react";
 // import timPlane from "resources/images/tim-plane-test.png";
 import "mapbox-gl/dist/mapbox-gl.css";
 import mapboxgl from "mapbox-gl";
 import * as turf from "@turf/turf";
 import { MapContainer } from "./Map.styles";
-// import "styles/Map.module.css";
 const steps = 200;
 
 interface IProps {
   travelData?: ITravelDataResponse;
-  onSelectShowState: () => void;
 }
 let isAtStart = true;
 
-const Map = ({ travelData, onSelectShowState }: IProps) => {
+const Map = ({ travelData }: IProps) => {
   const map = useRef<mapboxgl.Map | any>(null);
 
   useEffect(() => {

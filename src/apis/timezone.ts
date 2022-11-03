@@ -17,6 +17,8 @@ export const getTimezone = async (latitude: number, longitude: number) => {
       });
 
       return formattedDate.split(" ").reverse().join(", ");
+    } else {
+      return "";
     }
   } catch (err) {
     console.log(err);

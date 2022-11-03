@@ -13,7 +13,6 @@ import { getTimezone } from "apis/timezone";
 
 const Home: NextPage = () => {
   const [travelData, setTravelData] = useState<ITravelDataResponse>();
-  const [shouldShowStats, setShouldShowState] = useState(false);
   const [runEditAnimation, setRunEditAnimation] = useState(true);
   const motionValue = useMotionValue(0);
   const height = useTransform(motionValue, [0, 1], ["100%", "8vh"]);
@@ -63,14 +62,8 @@ const Home: NextPage = () => {
     }, 500);
   };
 
-  const onSelectShowState = () => {
-    setShouldShowState(true);
-  };
-
   const renderMap = () =>
-    motionValue.get() === 1 && (
-      <Map travelData={travelData} onSelectShowState={onSelectShowState} />
-    );
+    motionValue.get() === 1 && <Map travelData={travelData} />;
 
   return (
     <MainContainer>
