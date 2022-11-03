@@ -5,7 +5,7 @@ export const getTimezone = async (latitude: number, longitude: number) => {
   try {
     const res: AxiosResponse<ITimezoneRS> = await axios({
       method: "GET",
-      url: `http://api.timezonedb.com/v2.1/get-time-zone?key=${process.env.TIMEZONE_DB_TOKEN}&format=json&by=position&lat=${latitude}&lng=${longitude}`,
+      url: `https://api.timezonedb.com/v2.1/get-time-zone?key=${process.env.TIMEZONE_DB_TOKEN}&format=json&by=position&lat=${latitude}&lng=${longitude}`,
     });
     if (res.data.status === "OK") {
       const cityDate = new Date(res.data.formatted);
