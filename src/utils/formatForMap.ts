@@ -34,3 +34,20 @@ export const getFormattedPreviousTrips = (trips: ITrip[]) =>
 
 export const getFormattedNextTrips = (trips: ITrip[]) =>
   trips.filter(({ date_start }) => new Date() < new Date(date_start));
+
+export const getRouteCollection = (
+  origin: number[],
+  destination: number[]
+): IFeatureCollectionRoute => ({
+  type: "FeatureCollection",
+  features: [
+    {
+      type: "Feature",
+      properties: {},
+      geometry: {
+        type: "LineString",
+        coordinates: [origin, destination],
+      },
+    },
+  ],
+});

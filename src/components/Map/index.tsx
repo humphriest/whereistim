@@ -1,9 +1,10 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 // import timPlane from "resources/images/tim-plane-test.png";
 import "mapbox-gl/dist/mapbox-gl.css";
 import mapboxgl from "mapbox-gl";
 import * as turf from "@turf/turf";
 import { MapContainer } from "./Map.styles";
+import { getRouteCollection } from "utils/formatForMap";
 const steps = 200;
 
 interface IProps {
@@ -16,7 +17,8 @@ const Map = ({ travelData }: IProps) => {
 
   useEffect(() => {
     if (!travelData) return;
-
+    const { formattedRouteCollections } = travelData;
+    console.log(formattedRouteCollections);
     const now = travelData?.location.now;
     const dublin = travelData?.trips[travelData.trips.length - 1];
     const formattedCurrentTrip = travelData.formattedCurrentTrip;
@@ -39,19 +41,10 @@ const Map = ({ travelData }: IProps) => {
     const origin = [dublin?.longitude as number, dublin?.latitude as number];
     const destination = [now?.longitude as number, now?.latitude as number];
 
-    let route: IFeatureCollectionRoute = {
-      type: "FeatureCollection",
-      features: [
-        {
-          type: "Feature",
-          properties: {},
-          geometry: {
-            type: "LineString",
-            coordinates: [origin, destination],
-          },
-        },
-      ],
-    };
+    const route: IFeatureCollectionRoute = getRouteCollection(
+      origin,
+      destination
+    );
 
     route.features[0].geometry.coordinates = calculateArc(route);
 
@@ -70,7 +63,7 @@ const Map = ({ travelData }: IProps) => {
       addSourceToMap(route, formattedCurrentTrip);
       addLayerToMap();
 
-      function animate(time: number) {
+      const animate = (time: number) => {
         const start =
           route.features[0].geometry.coordinates[
             counter >= steps ? counter - 1 : counter
@@ -125,15 +118,15 @@ const Map = ({ travelData }: IProps) => {
           });
         }
         counter += 1;
-      }
+      };
 
-      flyToCurrentLocation();
+      animateMapToCurrentLocation();
       animate(counter);
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [travelData]);
 
-  const flyToCurrentLocation = () => {
+  const animateMapToCurrentLocation = () => {
     if (!travelData) return;
 
     const {

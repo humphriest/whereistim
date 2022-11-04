@@ -3,6 +3,7 @@ import {
   getFormattedNextTrips,
   getFormattedPoint,
   getFormattedPreviousTrips,
+  getRouteCollection,
 } from "utils/formatForMap";
 
 const fallbackTravelData: ITravelData = {
@@ -479,75 +480,105 @@ const fallbackTravelData: ITravelData = {
     },
   ],
 };
+
 const getTravelData = async (): Promise<ITravelDataResponse> => {
   try {
     const response: AxiosResponse<ITravelData> = await axios.get(
       "https://nomadlist.com/@humphries_t.json"
     );
 
-    const travelData = response.data;
-    const formattedTripFeatures: IFeaturePoint[] = travelData.trips.map(
-      (trip) => getFormattedPoint(trip)
-    );
-    const formattedPreviousTrip: IFeaturePoint = getFormattedPoint(
-      travelData.location.previous
-    );
-    const formattedCurrentTrip: IFeaturePoint = getFormattedPoint(
-      travelData.location.now
-    );
-
-    const previousTrips = getFormattedPreviousTrips(travelData.trips);
-    const nextTrips = getFormattedNextTrips(travelData.trips);
-
-    return {
-      ...travelData,
-      formattedTrips: {
-        type: "FeatureCollection",
-        features: formattedTripFeatures,
-      },
-      formattedPreviousTrip: {
-        type: "FeatureCollection",
-        features: [formattedPreviousTrip],
-      },
-      formattedCurrentTrip: {
-        type: "FeatureCollection",
-        features: [formattedCurrentTrip],
-      },
-      formattedPreviousTrips: previousTrips,
-      formattedNextTrips: nextTrips,
-    };
+    return geFormattedTravelData(response.data);
   } catch (err) {
-    const formattedTripFeatures: IFeaturePoint[] = fallbackTravelData.trips.map(
-      (trip) => getFormattedPoint(trip)
-    );
-    const formattedPreviousTrip: IFeaturePoint = getFormattedPoint(
-      fallbackTravelData.location.previous
-    );
-    const formattedCurrentTrip: IFeaturePoint = getFormattedPoint(
-      fallbackTravelData.location.now
-    );
-
-    const previousTrips = getFormattedPreviousTrips(fallbackTravelData.trips);
-    const nextTrips = getFormattedNextTrips(fallbackTravelData.trips);
-
-    return {
-      ...fallbackTravelData,
-      formattedTrips: {
-        type: "FeatureCollection",
-        features: formattedTripFeatures,
-      },
-      formattedPreviousTrip: {
-        type: "FeatureCollection",
-        features: [formattedPreviousTrip],
-      },
-      formattedCurrentTrip: {
-        type: "FeatureCollection",
-        features: [formattedCurrentTrip],
-      },
-      formattedPreviousTrips: previousTrips,
-      formattedNextTrips: nextTrips,
-    };
+    return getFallbackTravelData();
   }
 };
+
+const geFormattedTravelData = (
+  travelData: ITravelData
+): ITravelDataResponse => {
+  const formattedTripFeatures: IFeaturePoint[] = travelData.trips.map((trip) =>
+    getFormattedPoint(trip)
+  );
+  const formattedPreviousTrip: IFeaturePoint = getFormattedPoint(
+    travelData.location.previous
+  );
+  const formattedCurrentTrip: IFeaturePoint = getFormattedPoint(
+    travelData.location.now
+  );
+
+  const previousTrips = getFormattedPreviousTrips(travelData.trips);
+  const nextTrips = getFormattedNextTrips(travelData.trips);
+
+  getFormattedRouteCollections(travelData);
+  return {
+    ...travelData,
+    formattedTrips: {
+      type: "FeatureCollection",
+      features: formattedTripFeatures,
+    },
+    formattedPreviousTrip: {
+      type: "FeatureCollection",
+      features: [formattedPreviousTrip],
+    },
+    formattedCurrentTrip: {
+      type: "FeatureCollection",
+      features: [formattedCurrentTrip],
+    },
+    formattedPreviousTrips: previousTrips,
+    formattedNextTrips: nextTrips,
+    formattedRouteCollections: getFormattedRouteCollections(travelData),
+  };
+};
+
+const getFallbackTravelData = (): ITravelDataResponse => {
+  const formattedTripFeatures: IFeaturePoint[] = fallbackTravelData.trips.map(
+    (trip) => getFormattedPoint(trip)
+  );
+  const formattedPreviousTrip: IFeaturePoint = getFormattedPoint(
+    fallbackTravelData.location.previous
+  );
+  const formattedCurrentTrip: IFeaturePoint = getFormattedPoint(
+    fallbackTravelData.location.now
+  );
+
+  const previousTrips = getFormattedPreviousTrips(fallbackTravelData.trips);
+  const nextTrips = getFormattedNextTrips(fallbackTravelData.trips);
+
+  return {
+    ...fallbackTravelData,
+    formattedTrips: {
+      type: "FeatureCollection",
+      features: formattedTripFeatures,
+    },
+    formattedPreviousTrip: {
+      type: "FeatureCollection",
+      features: [formattedPreviousTrip],
+    },
+    formattedCurrentTrip: {
+      type: "FeatureCollection",
+      features: [formattedCurrentTrip],
+    },
+    formattedPreviousTrips: previousTrips,
+    formattedNextTrips: nextTrips,
+    formattedRouteCollections: getFormattedRouteCollections(fallbackTravelData),
+  };
+};
+
+const getFormattedRouteCollections = ({
+  trips,
+}: ITravelData): IFeatureCollectionRoute[] =>
+  trips
+    .map((trip, i) => {
+      if (i + 1 === trips.length) return;
+
+      const origin = trip;
+      const destination = trips[i + 1];
+
+      return getRouteCollection(
+        [origin.longitude, origin.latitude],
+        [destination.longitude, destination.latitude]
+      );
+    })
+    .filter(Boolean) as IFeatureCollectionRoute[];
 
 export default getTravelData;

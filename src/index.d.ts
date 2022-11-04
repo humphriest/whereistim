@@ -19,6 +19,7 @@ declare interface ITravelDataResponse extends ITravelData {
   formattedCurrentTrip: IFeatureCollectionPoint;
   formattedPreviousTrips: ITrip[];
   formattedNextTrips: ITrip[];
+  formattedRouteCollections: IFeatureCollectionRoute[];
 }
 declare interface ILocationData {
   city: string;
