@@ -509,7 +509,8 @@ const geFormattedTravelData = (
   const previousTrips = getFormattedPreviousTrips(travelData.trips);
   const nextTrips = getFormattedNextTrips(travelData.trips);
 
-  getFormattedRouteCollections(travelData);
+  const formattedRouteCollections = getFormattedRouteCollections(travelData);
+
   return {
     ...travelData,
     formattedTrips: {
@@ -526,7 +527,7 @@ const geFormattedTravelData = (
     },
     formattedPreviousTrips: previousTrips,
     formattedNextTrips: nextTrips,
-    formattedRouteCollections: getFormattedRouteCollections(travelData),
+    formattedRouteCollections,
   };
 };
 
@@ -568,6 +569,7 @@ const getFormattedRouteCollections = ({
   trips,
 }: ITravelData): IFeatureCollectionRoute[] =>
   trips
+    .reverse()
     .map((trip, i) => {
       if (i + 1 === trips.length) return;
 
