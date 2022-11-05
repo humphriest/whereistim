@@ -5,6 +5,7 @@ import mapboxgl from "mapbox-gl";
 import * as turf from "@turf/turf";
 import { MapContainer } from "./Map.styles";
 import { getRouteCollection } from "utils/formatForMap";
+
 const steps = 200;
 
 interface IProps {
@@ -14,14 +15,12 @@ let isAtStart = true;
 
 const Map = ({ travelData }: IProps) => {
   const map = useRef<mapboxgl.Map | any>(null);
+  const [animatedRoute, setAnimatedRoute] = useState<IFeatureCollectionRoute>();
+  const [mapReady, setMapReady] = useState<boolean>();
 
   useEffect(() => {
     if (!travelData) return;
-    const { formattedRouteCollections } = travelData;
-    console.log(formattedRouteCollections);
-    const now = travelData?.location.now;
-    const dublin = travelData?.trips[travelData.trips.length - 1];
-    const formattedCurrentTrip = travelData.formattedCurrentTrip;
+    const { now } = travelData.location;
 
     mapboxgl.accessToken = process.env.MAPBOX_GL_TOKEN || "";
     map.current = new mapboxgl.Map({
@@ -32,12 +31,107 @@ const Map = ({ travelData }: IProps) => {
       pitch: 10,
       projection: { name: "globe" },
     });
+
     if (!map.current) return;
 
     map.current.on("style.load", () => {
       map.current.setFog({ "horizon-blend": 0.1 });
     });
 
+    setupRouteAnimation();
+
+    map.current.on("load", () => {
+      const mapElement = document.getElementById("map-container");
+      if (mapElement) mapElement.style.visibility = "visible";
+
+      setMapReady(true);
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [travelData]);
+
+  useEffect(() => {
+    if (mapReady) {
+      const pulseIcon = createPulseIcon();
+
+      map.current.addImage("pulsing-dot", pulseIcon, { pixelRatio: 2 });
+
+      addSvgTimbo();
+      addSourceToMap();
+      addLayerToMap();
+      beginAnimation();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [animatedRoute, mapReady]);
+
+  const beginAnimation = () => {
+    let counter = 0;
+
+    const animate = (time: number) => {
+      const { formattedCurrentTrip } = travelData as ITravelDataResponse;
+      const start =
+        animatedRoute?.features[0].geometry.coordinates[
+          counter >= steps ? counter - 1 : counter
+        ];
+
+      const end =
+        animatedRoute?.features[0].geometry.coordinates[
+          counter >= steps ? counter : counter + 1
+        ];
+
+      if (!start || !end) return;
+
+      // Update point geometry to a new position based on counter denoting
+      // the index to access the arc
+      formattedCurrentTrip.features[0].geometry.coordinates = animatedRoute
+        .features[0].geometry.coordinates[counter] as [number, number];
+
+      // Calculate the bearing to ensure the icon is rotated to match the route arc
+      // The bearing is calculated between the current point and the next point, except
+      // at the end of the arc, which uses the previous point and the current point
+      formattedCurrentTrip.features[0].properties.bearing = turf.bearing(
+        turf.point(start),
+        turf.point(end)
+      );
+
+      // Update the source with this new data
+      map.current.getSource("animating-plane").setData(formattedCurrentTrip);
+
+      // Request the next frame of animation as long as the end has not been reached
+      if (counter < steps) {
+        requestAnimationFrame(animate);
+      }
+
+      if (counter === steps) {
+        map.current.removeLayer("animating-plane");
+        map.current.addLayer({
+          id: "animating-plane",
+          type: "symbol",
+          source: "animating-plane",
+          layout: {
+            "icon-image": "pulsing-dot",
+          },
+        });
+        map.current.addLayer({
+          id: "timePosePoint",
+          type: "symbol",
+          source: "timePosePoint",
+          layout: {
+            "icon-image": "tim-pose",
+            "icon-allow-overlap": true,
+            "icon-ignore-placement": true,
+          },
+        });
+      }
+      counter += 1;
+    };
+
+    animate(counter);
+  };
+
+  const setupRouteAnimation = () => {
+    const { location, trips } = travelData as ITravelDataResponse;
+    const now = location.now;
+    const dublin = trips[trips.length - 1];
     const origin = [dublin?.longitude as number, dublin?.latitude as number];
     const destination = [now?.longitude as number, now?.latitude as number];
 
@@ -48,118 +142,43 @@ const Map = ({ travelData }: IProps) => {
 
     route.features[0].geometry.coordinates = calculateArc(route);
 
-    // Used to increment the value of the point measurement against the route.
-    let counter = 0;
-
-    const pulseIcon = createPulseIcon();
-
-    map.current.on("load", () => {
-      const mapElement = document.getElementById("map-container");
-      if (mapElement) mapElement.style.visibility = "visible";
-
-      map.current.addImage("pulsing-dot", pulseIcon, { pixelRatio: 2 });
-
-      addSvgTimbo();
-      addSourceToMap(route, formattedCurrentTrip);
-      addLayerToMap();
-
-      const animate = (time: number) => {
-        const start =
-          route.features[0].geometry.coordinates[
-            counter >= steps ? counter - 1 : counter
-          ];
-        const end =
-          route.features[0].geometry.coordinates[
-            counter >= steps ? counter : counter + 1
-          ];
-
-        if (!start || !end) return;
-
-        // Update point geometry to a new position based on counter denoting
-        // the index to access the arc
-        formattedCurrentTrip.features[0].geometry.coordinates = route
-          .features[0].geometry.coordinates[counter] as [number, number];
-
-        // Calculate the bearing to ensure the icon is rotated to match the route arc
-        // The bearing is calculated between the current point and the next point, except
-        // at the end of the arc, which uses the previous point and the current point
-        formattedCurrentTrip.features[0].properties.bearing = turf.bearing(
-          turf.point(start),
-          turf.point(end)
-        );
-
-        // Update the source with this new data
-        map.current.getSource("animating-plane").setData(formattedCurrentTrip);
-
-        // Request the next frame of animation as long as the end has not been reached
-        if (counter < steps) {
-          requestAnimationFrame(animate);
-        }
-
-        if (counter === steps) {
-          map.current.removeLayer("animating-plane");
-          map.current.addLayer({
-            id: "animating-plane",
-            type: "symbol",
-            source: "animating-plane",
-            layout: {
-              "icon-image": "pulsing-dot",
-            },
-          });
-          map.current.addLayer({
-            id: "timePosePoint",
-            type: "symbol",
-            source: "timePosePoint",
-            layout: {
-              "icon-image": "tim-pose",
-              "icon-allow-overlap": true,
-              "icon-ignore-placement": true,
-            },
-          });
-        }
-        counter += 1;
-      };
-
-      animateMapToCurrentLocation();
-      animate(counter);
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [travelData]);
-
-  const animateMapToCurrentLocation = () => {
-    if (!travelData) return;
-
-    const {
-      location: {
-        now: { latitude, longitude },
-      },
-      trips,
-    } = travelData;
-
-    const startLocation = trips[trips.length - 1];
-
-    const start = {
-      center: [startLocation.longitude, startLocation.latitude],
-      zoom: 1,
-      pitch: 0,
-      bearing: 0,
-    };
-    const end = {
-      center: [longitude, latitude],
-      zoom: 4,
-      bearing: 0,
-      pitch: 5,
-    };
-
-    const target = !isAtStart ? start : end;
-    isAtStart = !isAtStart;
-
-    map.current.flyTo({
-      ...target,
-      duration: 6000,
-      essential: true,
-    });
+    setAnimatedRoute(route);
   };
+
+  // const animateMapToCurrentLocation = () => {
+  //   if (!travelData) return;
+
+  //   const {
+  //     location: {
+  //       now: { latitude, longitude },
+  //     },
+  //     trips,
+  //   } = travelData;
+
+  //   const startLocation = trips[trips.length - 1];
+
+  //   const start = {
+  //     center: [startLocation.longitude, startLocation.latitude],
+  //     zoom: 1,
+  //     pitch: 0,
+  //     bearing: 0,
+  //   };
+  //   const end = {
+  //     center: [longitude, latitude],
+  //     zoom: 4,
+  //     bearing: 0,
+  //     pitch: 5,
+  //   };
+
+  //   const target = !isAtStart ? start : end;
+  //   isAtStart = !isAtStart;
+
+  //   map.current.flyTo({
+  //     ...target,
+  //     duration: 6000,
+  //     essential: true,
+  //   });
+  // };
 
   const createPulseIcon = () => {
     const size = 150;
@@ -289,26 +308,23 @@ const Map = ({ travelData }: IProps) => {
     });
   };
 
-  const addSourceToMap = (
-    route: IFeatureCollectionRoute,
-    point: IFeatureCollectionPoint
-  ) => {
-    // Add a source and layer displaying a point which will be animated in a circle.
+  const addSourceToMap = () => {
+    if (!travelData) return;
+
+    const { formattedPreviousTrips, formattedNextTrips, formattedCurrentTrip } =
+      travelData;
+
     map.current.addSource("route", {
       type: "geojson",
-      data: route,
+      data: animatedRoute,
       lineMetrics: true,
     });
 
     map.current.addSource("animating-plane", {
       type: "geojson",
-      data: point,
+      data: formattedCurrentTrip,
     });
 
-    if (!travelData) return;
-
-    const { formattedPreviousTrips, formattedNextTrips, formattedCurrentTrip } =
-      travelData;
     if (!!formattedPreviousTrips) {
       formattedPreviousTrips.map(
         ({ longitude, latitude, place, country, length }) => {
@@ -334,6 +350,7 @@ const Map = ({ travelData }: IProps) => {
         }
       );
     }
+
     if (!!formattedNextTrips) {
       formattedNextTrips.map(
         ({ longitude, latitude, place, country, length }) => {
