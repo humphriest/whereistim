@@ -560,6 +560,8 @@ const getFallbackTravelData = (): ITravelDataResponse => {
     fallbackTravelData.location.now
   );
 
+  const formattedNextTrip: IFeaturePoint = getFormattedPoint(location.next);
+
   const previousTrips = getFormattedPreviousTrips(fallbackTravelData.trips);
   const nextTrips = getFormattedNextTrips(fallbackTravelData.trips);
 
@@ -579,7 +581,12 @@ const getFallbackTravelData = (): ITravelDataResponse => {
     },
     formattedPreviousTrips: previousTrips,
     formattedNextTrips: nextTrips,
+    formattedNextTrip: {
+      type: "FeatureCollection",
+      features: [formattedNextTrip],
+    },
     formattedRouteCollections: getFormattedRouteCollections(fallbackTravelData),
+    currentLocationIndex: 0,
   };
 };
 
