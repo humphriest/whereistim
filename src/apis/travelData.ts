@@ -560,7 +560,9 @@ const getFallbackTravelData = (): ITravelDataResponse => {
     fallbackTravelData.location.now
   );
 
-  const formattedNextTrip: IFeaturePoint = getFormattedPoint(location.next);
+  const formattedNextTrip: IFeaturePoint = getFormattedPoint(
+    fallbackTravelData.location.next
+  );
 
   const previousTrips = getFormattedPreviousTrips(fallbackTravelData.trips);
   const nextTrips = getFormattedNextTrips(fallbackTravelData.trips);
