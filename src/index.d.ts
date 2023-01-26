@@ -17,10 +17,13 @@ declare interface ITravelDataResponse extends ITravelData {
   formattedTrips: IFeatureCollectionPoint;
   formattedPreviousTrip: IFeatureCollectionPoint;
   formattedCurrentTrip: IFeatureCollectionPoint;
+  formattedNextTrip: IFeatureCollectionPoint;
   formattedPreviousTrips: ITrip[];
   formattedNextTrips: ITrip[];
   formattedRouteCollections: IFeatureCollectionRoute[];
+  currentLocationIndex: number;
 }
+
 declare interface ILocationData {
   city: string;
   country: string;

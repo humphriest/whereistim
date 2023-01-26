@@ -31,18 +31,12 @@ const Home: NextPage = () => {
   }, [travelData]);
 
   const setHeader = async () => {
-    if (!travelData) return null;
-
+    if (!travelData) return;
     const now = travelData?.location?.now;
-    const dublin = travelData?.trips?.[travelData?.trips.length - 1];
-
     const currentLocationTitleId = document.getElementById("current-location");
     if (!currentLocationTitleId) return;
-
     setRunEditAnimation(false);
-
-    const formattedTime = await getTimezone(dublin.latitude, dublin.longitude);
-
+    const formattedTime = await getTimezone(now.latitude, now.longitude);
     typeWriter(
       `${now.city.toUpperCase()}, ${now.country.toUpperCase()} \n ${formattedTime?.toUpperCase()}`,
       currentLocationTitleId,
@@ -62,18 +56,19 @@ const Home: NextPage = () => {
     }, 500);
   };
 
-  const renderMap = () =>
-    motionValue.get() === 1 && <Map travelData={travelData} />;
+  // const renderMap = () =>
+  //   motionValue.get() === 1 && <Map travelData={travelData} />;
+  const renderMap = () => <Map travelData={travelData} />;
 
   return (
     <MainContainer>
-      <HeaderTitleContainer
+      {/* <HeaderTitleContainer
         style={{
           height,
         }}
       >
         <CityTitleContainer id="current-location" animate={runEditAnimation} />
-      </HeaderTitleContainer>
+      </HeaderTitleContainer> */}
       {renderMap()}
     </MainContainer>
   );

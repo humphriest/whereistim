@@ -2,12 +2,16 @@ import { useEffect, useRef, useState } from "react";
 // import timPlane from "resources/images/tim-plane-test.png";
 import "mapbox-gl/dist/mapbox-gl.css";
 import mapboxgl from "mapbox-gl";
-import * as turf from "@turf/turf";
+import { bearing, distance, point } from "@turf/turf";
 import { MapContainer } from "./Map.styles";
 import { getRouteCollection } from "utils/formatForMap";
+import { calculateArc } from "utils/mapHelper";
+import { createPulseIcon } from "components/PulseIcon";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
 
-const steps = 200;
-
+dayjs.extend(relativeTime);
+const steps = 151;
 interface IProps {
   travelData?: ITravelDataResponse;
 }
@@ -17,16 +21,17 @@ const Map = ({ travelData }: IProps) => {
   const map = useRef<mapboxgl.Map | any>(null);
   const [animatedRoute, setAnimatedRoute] = useState<IFeatureCollectionRoute>();
   const [mapReady, setMapReady] = useState<boolean>();
+  const [tripIndex, setTripIndex] = useState<number>(0);
 
   useEffect(() => {
     if (!travelData) return;
-    const { now } = travelData.location;
+    const { trips } = travelData;
 
     mapboxgl.accessToken = process.env.MAPBOX_GL_TOKEN || "";
     map.current = new mapboxgl.Map({
       container: "map-container",
       style: "mapbox://styles/mapbox/dark-v10",
-      center: [now?.longitude as number, now?.latitude as number],
+      center: [trips[0]?.longitude as number, trips[0]?.latitude as number],
       zoom: 2,
       pitch: 10,
       projection: { name: "globe" },
@@ -51,50 +56,113 @@ const Map = ({ travelData }: IProps) => {
 
   useEffect(() => {
     if (mapReady) {
-      const pulseIcon = createPulseIcon();
+      const pulseIcon = createPulseIcon(map);
 
       map.current.addImage("pulsing-dot", pulseIcon, { pixelRatio: 2 });
 
       addSvgTimbo();
       addSourceToMap();
       addLayerToMap();
-      beginAnimation();
+      beginAnimation(steps);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [animatedRoute, mapReady]);
+  }, [mapReady]);
 
-  const beginAnimation = () => {
+  useEffect(() => {
+    if (!travelData) return;
+
+    const currentLocationIndex = travelData?.currentLocationIndex;
+
+    if (tripIndex < currentLocationIndex) {
+      setupRouteAnimation();
+    } else {
+      map.current.removeLayer("animating-plane");
+      map.current.addLayer({
+        id: "animating-plane",
+        type: "symbol",
+        source: "animating-plane",
+        layout: {
+          "icon-image": "pulsing-dot",
+        },
+      });
+      map.current.addLayer({
+        id: "timePosePoint",
+        type: "symbol",
+        source: "timePosePoint",
+        layout: {
+          "icon-image": "tim-pose",
+          "icon-allow-overlap": true,
+          "icon-ignore-placement": true,
+        },
+      });
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tripIndex]);
+
+  useEffect(() => {
+    if (!travelData) return;
+
+    console.log(animatedRoute);
+
+    const { trips } = travelData as ITravelDataResponse;
+    const startLocation = trips[tripIndex];
+    const endLocation = trips[tripIndex + 1];
+
+    const from = [startLocation.longitude, startLocation.latitude];
+    const to = [endLocation.longitude, endLocation.latitude];
+    const distanceInKms = distance(from, to, { units: "kilometers" });
+
+    if (mapReady) beginAnimation(distanceInKms / 5);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [animatedRoute]);
+
+  const beginAnimation = (steps2: number) => {
     let counter = 0;
+    const planePosition = {
+      type: "FeatureCollection",
+      features: [
+        {
+          type: "Feature",
+          properties: { bearing: 0 },
+          geometry: {
+            type: "Point",
+            coordinates: [0, 0],
+          },
+        },
+      ],
+    };
 
-    const animate = (time: number) => {
-      const { formattedCurrentTrip } = travelData as ITravelDataResponse;
-      const start =
+    const animate = () => {
+      let pointA =
         animatedRoute?.features[0].geometry.coordinates[
           counter >= steps ? counter - 1 : counter
         ];
 
-      const end =
+      let pointB =
         animatedRoute?.features[0].geometry.coordinates[
           counter >= steps ? counter : counter + 1
         ];
 
-      if (!start || !end) return;
+      if (!pointB && !!pointA) pointB = pointA;
+
+      if (!pointA || !pointB) return;
 
       // Update point geometry to a new position based on counter denoting
       // the index to access the arc
-      formattedCurrentTrip.features[0].geometry.coordinates = animatedRoute
-        .features[0].geometry.coordinates[counter] as [number, number];
+      planePosition.features[0].geometry.coordinates = animatedRoute
+        ?.features[0].geometry.coordinates[counter] as [number, number];
 
       // Calculate the bearing to ensure the icon is rotated to match the route arc
       // The bearing is calculated between the current point and the next point, except
       // at the end of the arc, which uses the previous point and the current point
-      formattedCurrentTrip.features[0].properties.bearing = turf.bearing(
-        turf.point(start),
-        turf.point(end)
+      planePosition.features[0].properties.bearing = bearing(
+        point(pointA),
+        point(pointB)
       );
 
       // Update the source with this new data
-      map.current.getSource("animating-plane").setData(formattedCurrentTrip);
+      map.current.getSource("animating-plane").setData(planePosition);
 
       // Request the next frame of animation as long as the end has not been reached
       if (counter < steps) {
@@ -102,45 +170,37 @@ const Map = ({ travelData }: IProps) => {
       }
 
       if (counter === steps) {
-        map.current.removeLayer("animating-plane");
-        map.current.addLayer({
-          id: "animating-plane",
-          type: "symbol",
-          source: "animating-plane",
-          layout: {
-            "icon-image": "pulsing-dot",
-          },
-        });
-        map.current.addLayer({
-          id: "timePosePoint",
-          type: "symbol",
-          source: "timePosePoint",
-          layout: {
-            "icon-image": "tim-pose",
-            "icon-allow-overlap": true,
-            "icon-ignore-placement": true,
-          },
-        });
+        setTripIndex((index) => index + 1);
+        counter = 0;
       }
       counter += 1;
     };
 
-    animate(counter);
+    animate();
   };
 
   const setupRouteAnimation = () => {
-    const { location, trips } = travelData as ITravelDataResponse;
-    const now = location.now;
-    const dublin = trips[trips.length - 1];
-    const origin = [dublin?.longitude as number, dublin?.latitude as number];
-    const destination = [now?.longitude as number, now?.latitude as number];
+    if (!travelData) return;
+
+    const { trips } = travelData as ITravelDataResponse;
+    const startLocation = trips[tripIndex];
+    const endLocation = trips[tripIndex + 1];
+    const origin = [
+      startLocation?.longitude as number,
+      startLocation?.latitude as number,
+    ];
+    const destination = [
+      endLocation?.longitude as number,
+      endLocation?.latitude as number,
+    ];
 
     const route: IFeatureCollectionRoute = getRouteCollection(
       origin,
       destination
     );
 
-    route.features[0].geometry.coordinates = calculateArc(route);
+    route.features[0].geometry.coordinates = calculateArc(route, steps);
+    route.features[0].geometry.coordinates.push(destination);
 
     setAnimatedRoute(route);
   };
@@ -179,59 +239,6 @@ const Map = ({ travelData }: IProps) => {
   //     essential: true,
   //   });
   // };
-
-  const createPulseIcon = () => {
-    const size = 150;
-
-    return {
-      width: size,
-      height: size,
-      data: new Uint8ClampedArray(size * size * 4),
-      context: null as CanvasRenderingContext2D | null,
-
-      onAdd: function () {
-        const canvas = document.createElement("canvas");
-        canvas.width = this.width;
-        canvas.height = this.height;
-        this.context = canvas.getContext("2d");
-      },
-
-      // Call once before every frame where the icon will be used.
-      render: function () {
-        const duration = 2000;
-        const t = (performance.now() % duration) / duration;
-
-        const radius = (size / 2) * 0.3;
-        const outerRadius = (size / 2) * 0.7 * t + radius;
-        const context = this.context;
-
-        if (!context) return false;
-        // Draw the outer circle.
-        context.clearRect(0, 0, this.width, this.height);
-        context.beginPath();
-        context.arc(
-          this.width / 2,
-          this.height / 2,
-          outerRadius,
-          0,
-          Math.PI * 2
-        );
-        context.fillStyle = `rgba(31, 81, 255, ${1 - t})`;
-        context.fill();
-        context.stroke();
-
-        // Update this image's data with data from the canvas.
-        this.data = context.getImageData(0, 0, this.width, this.height).data;
-
-        // Continuously repaint the map, resulting
-        // in the smooth animation of the dot.
-        map.current.triggerRepaint();
-
-        // Return `true` to let the map know that the image was updated.
-        return true;
-      },
-    };
-  };
 
   const addSvgTimbo = () => {
     map.current.loadImage(
@@ -311,14 +318,24 @@ const Map = ({ travelData }: IProps) => {
   const addSourceToMap = () => {
     if (!travelData) return;
 
-    const { formattedPreviousTrips, formattedNextTrips, formattedCurrentTrip } =
-      travelData;
+    const {
+      formattedPreviousTrips,
+      formattedNextTrips,
+      formattedCurrentTrip,
+      location: { now },
+    } = travelData;
 
     map.current.addSource("route", {
       type: "geojson",
       data: animatedRoute,
       lineMetrics: true,
     });
+    //   const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(`<div>
+    //   ${now.city}, ${now.country}
+    //   <br />
+    //   ${dayjs(now.date_start).toNow()} days
+    // </div>`);
+    // .setPopup(popup);
 
     map.current.addSource("animating-plane", {
       type: "geojson",
@@ -354,11 +371,12 @@ const Map = ({ travelData }: IProps) => {
     if (!!formattedNextTrips) {
       formattedNextTrips.map(
         ({ longitude, latitude, place, country, length }) => {
-          const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(`<div>
+          const popup: any = new mapboxgl.Popup({ offset: 25 }).setHTML(`<div>
           ${place}, ${country}
           <br />
-          ${length} days
+          ${length}
         </div>`);
+          popup._content.style.textAlign = "center";
 
           const el = document.createElement("div");
           el.className = "marker";
@@ -386,19 +404,6 @@ const Map = ({ travelData }: IProps) => {
       type: "geojson",
       data: formattedCurrentTrip,
     });
-  };
-
-  const calculateArc = (route: IFeatureCollectionRoute) => {
-    const lineDistance = turf.length(route.features[0]);
-    const arc = [];
-
-    // Draw an arc between the `origin` & `destination` of the two points
-    for (let i = 0; i < lineDistance; i += lineDistance / steps) {
-      const segment = turf.along(route.features[0], i);
-      arc.push(segment.geometry.coordinates);
-    }
-
-    return arc;
   };
 
   return <MapContainer id="map-container" />;

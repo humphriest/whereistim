@@ -496,18 +496,31 @@ const getTravelData = async (): Promise<ITravelDataResponse> => {
 const geFormattedTravelData = (
   travelData: ITravelData
 ): ITravelDataResponse => {
-  const formattedTripFeatures: IFeaturePoint[] = travelData.trips.map((trip) =>
-    getFormattedPoint(trip)
-  );
-  const formattedPreviousTrip: IFeaturePoint = getFormattedPoint(
-    travelData.location.previous
-  );
-  const formattedCurrentTrip: IFeaturePoint = getFormattedPoint(
-    travelData.location.now
-  );
+  const { location, trips } = travelData;
+  let currentLocationIndex = 0;
 
-  const previousTrips = getFormattedPreviousTrips(travelData.trips);
-  const nextTrips = getFormattedNextTrips(travelData.trips);
+  const formattedTripFeatures: IFeaturePoint[] = trips.map((trip) => {
+    return getFormattedPoint(trip);
+  });
+
+  const tempTrips = [...trips];
+  tempTrips.reverse().forEach((trip, i) => {
+    if (
+      location.now.latitude === trip.latitude &&
+      location?.now?.longitude === trip.longitude
+    ) {
+      currentLocationIndex = i;
+    }
+  });
+
+  const formattedPreviousTrip: IFeaturePoint = getFormattedPoint(
+    location.previous
+  );
+  const formattedCurrentTrip: IFeaturePoint = getFormattedPoint(location.now);
+  const formattedNextTrip: IFeaturePoint = getFormattedPoint(location.next);
+
+  const previousTrips = getFormattedPreviousTrips(trips);
+  const nextTrips = getFormattedNextTrips(trips);
 
   const formattedRouteCollections = getFormattedRouteCollections(travelData);
 
@@ -526,8 +539,13 @@ const geFormattedTravelData = (
       features: [formattedCurrentTrip],
     },
     formattedPreviousTrips: previousTrips,
+    formattedNextTrip: {
+      type: "FeatureCollection",
+      features: [formattedNextTrip],
+    },
     formattedNextTrips: nextTrips,
     formattedRouteCollections,
+    currentLocationIndex,
   };
 };
 
